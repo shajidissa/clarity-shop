@@ -41,7 +41,13 @@
             "Helvetica Neue", Arial, sans-serif;
             background:var(--bg);
             color:var(--text);
-            display:grid;place-items:center;
+
+            /* ⬆️ push everything up */
+            display:grid;
+            min-height:100svh;              /* safe viewport height */
+            place-content:start center;     /* top + centered horizontally */
+            justify-items:center;           /* center the card itself */
+            padding-top: 4vh;               /* fine-tune the gap from the very top */
         }
 
         /* Card */
