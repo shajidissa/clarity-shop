@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Clarity Hoodies</title>
+    <title>Product – Clarity Hoodies</title>
     <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -19,7 +19,6 @@
             </div>
         </a>
 
-        <!-- Link to your local cart page (NOT PayPal view-cart) -->
         <a class="cart-link" href="cart.html" aria-label="Cart">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
@@ -31,7 +30,13 @@
     </div>
 </header>
 
-<section class="products" id="products"></section>
+<nav class="product-breadcrumb">
+    <a class="back-link" href="index.html">← Back to shop</a>
+    <span class="divider">/</span>
+    <span id="crumb-name">Product</span>
+</nav>
+
+<section class="product-detail" id="product-detail"></section>
 
 <div class="whatsapp">
     <a href="https://wa.me/1234567890" target="_blank">

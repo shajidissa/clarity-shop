@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Fixed PayPal Test (No ITEM_TOTAL_REQUIRED Error)</title>
+    <style>
+        body { font-family: Arial, sans-serif; background: #f4f4f4; color: #333; text-align: center; padding: 50px; }
+        .product { max-width: 400px; margin: 0 auto; background: white; padding: 30px; border-radius: 16px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        h1 { font-size: 1.8rem; margin: 0 0 12px; color: #1a1a1a; }
+        .price { font-size: 2rem; font-weight: bold; color: #e91e63; margin: 12px 0; }
+        .info { color: #666; margin-bottom: 24px; }
+        #paypal-button-container { margin-top: 20px; }
+        .note { margin-top: 30px; font-size: 0.9rem; color: #777; }
+        .error { color: red; padding: 10px; background: #ffebee; border-radius: 4px; margin: 10px 0; display: none; }
+        .success { color: green; padding: 10px; background: #e8f5e9; border-radius: 4px; margin: 10px 0; display: none; }
+    </style>
+</head>
+<body>
+
+<div class="product">
+    <h1>Classic Black Hoodie</h1>
+    <div class="price">£49.99</div>
+    <div class="info">Size: M • Color: Black</div>
+    <div id="paypal-button-container"></div>
+    <div id="error-msg" class="error"></div>
+    <div id="success-msg" class="success"></div>
+</div>
+
+<div class="note">
+    <p>Fixed: Added item_total breakdown. Test with sandbox buyer: buyer@example.com / paypal123</p>
+    <p><strong>Product ID:</strong> HOODIE-001 (tracks via SKU)</p>
+</div>
+
+<!-- Modern PayPal SDK (Sandbox) -->
+<script src="https://www.paypal.com/sdk/js?client-id=sb&currency=GBP"></script>
+
+<script>
+    // Calculate item_total from items
+    const itemTotal = '49.99';  // 1 * 49.99
+
+    paypal.Buttons({
+        createOrder: function(data, actions) {
+            return actions.order.create({
+                purchase_units: [{
+                    amount: {
+                        value: itemTotal,  // Must match item_total
+                        currency_code: 'GBP',
+                        breakdown: {
+                            item_total: {
+                                currency_code: 'GBP',
+                                value: itemTotal  // FIXED: Required when items specified
+                            },
+                            shipping: {  // Optional: Set to 0 for no shipping
+                                currency_code: 'GBP',
+                                value: '0.00'
+                            },
+                            handling: {  // Optional: Set to 0
+                                currency_code: 'GBP',
+                                value: '0.00'
+                            },
+                            tax_total: {  // Optional: Set to 0 for no tax
+                                currency_code: 'GBP',
+                                value: '0.00'
+                            }
+                        }
+                    },
+                    items: [{
+                        name: 'Classic Black Hoodie',
+                        sku: 'HOODIE-001',  // Your correlating product ID
+                        quantity: 1,
+                        unit_amount: {
+                            value: '49.99',
+                            currency_code: 'GBP'
+                        }
+                    }]
+                }]
+            });
+        },
+        onApprove: function(data, actions) {
+            return actions.order.capture().then(function(details) {
+                const productSku = details.purchase_units[0].items[0].sku;
+                const orderId = details.id;
+                document.getElementById('success-msg').innerHTML = `Success! Product ID: ${productSku} | Order: ${orderId}`;
+                document.getElementById('success-msg').style.display = 'block';
+                console.log('Full Order Details:', details);  // Check F12 console
+            });
+        },
+        onError: function(err) {
+            document.getElementById('error-msg').textContent = 'Error: ' + (err.message || JSON.stringify(err)) + ' (Try incognito)';
+            document.getElementById('error-msg').style.display = 'block';
+            console.error('PayPal Error:', err);
+        }
+    }).render('#paypal-button-container');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Classic Black Hoodie",
+    "price": 49.99,
+    "stock": 5,
+    "image": "assets/images/hoodie1.png",
+    "sizes": ["S", "M", "L", "XL"],
+    "colors": ["Black", "Grey"],
+    "paypal": "JXQZS56248XNN"
+  },
+  {
+    "id": 2,
+    "name": "Neon Green Hoodie",
+    "price": 54.99,
+    "stock": 3,
+    "image": "assets/images/hoodie2.png",
+    "sizes": ["M", "L", "XL"],
+    "colors": ["Neon Green"],
+    "paypal": "JXQZS56248XNN"
+  },
+  {
+    "id": 3,
+    "name": "Vintage Red Hoodie",
+    "price": 52.99,
+    "stock": 7,
+    "image": "assets/images/hoodie3.png",
+    "sizes": ["S", "M", "L"],
+    "colors": ["Red"],
+    "paypal": "JXQZS56248XNN"
+  },
+  {
+    "id": 4,
+    "name": "Minimal White Hoodie",
+    "price": 47.99,
+    "stock": 4,
+    "image": "assets/images/hoodie4.png",
+    "sizes": ["S", "M", "L", "XL"],
+    "colors": ["White"],
+    "paypal": "JXQZS56248XNN"
+  },
+  {
+    "id": 5,
+    "name": "Camo Hoodie",
+    "price": 59.99,
+    "stock": 2,
+    "image": "assets/images/hoodie1.png",
+    "sizes": ["M", "L"],
+    "colors": ["Camo"],
+    "paypal": "JXQZS56248XNN"
+  },
+  {
+    "id": 6,
+    "name": "Tie-Dye Hoodie",
+    "price": 56.99,
+    "stock": 6,
+    "image": "assets/images/hoodie2.png",
+    "sizes": ["S", "M", "L", "XL"],
+    "colors": ["Tie-Dye"],
+    "paypal": "JXQZS56248XNN"
+  }
+]

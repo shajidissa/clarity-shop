@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Clarity Hoodies</title>
+    <title>Cart – Clarity</title>
     <link rel="stylesheet" href="style.css"/>
+    <!-- PayPal JS SDK (Sandbox). Use your Sandbox client id here; 'sb' works for testing. -->
+    <script src="https://www.paypal.com/sdk/js?client-id=sb&currency=GBP&components=buttons"></script>
 </head>
 <body>
 <header class="site-header simple">
@@ -19,7 +21,6 @@
             </div>
         </a>
 
-        <!-- Link to your local cart page (NOT PayPal view-cart) -->
         <a class="cart-link" href="cart.html" aria-label="Cart">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
@@ -31,7 +32,18 @@
     </div>
 </header>
 
-<section class="products" id="products"></section>
+<section class="cart">
+    <h2>Your Cart</h2>
+    <div id="cart-items"></div>
+    <div class="total">Total: £<span id="total">0.00</span></div>
+
+    <input type="email" id="customer-email" placeholder="Your email (for receipt)" />
+    <input type="text" id="coupon" placeholder="Coupon code"/>
+    <button id="apply-coupon">Apply</button>
+
+    <!-- PayPal button will be rendered here by script.js -->
+    <div id="paypal-button-container"></div>
+</section>
 
 <div class="whatsapp">
     <a href="https://wa.me/1234567890" target="_blank">
@@ -43,6 +55,8 @@
 <div id="toast" class="toast" hidden></div>
 <div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
 
+<!-- Optional: your PDF/receipt lib -->
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
