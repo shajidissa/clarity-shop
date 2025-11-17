@@ -3,60 +3,60 @@
     "id": 1,
     "name": "Classic Black Hoodie",
     "price": 49.99,
+    "priceInPence": 4999,
     "stock": 5,
     "image": "assets/images/hoodie1.png",
     "sizes": ["S", "M", "L", "XL"],
-    "colors": ["Black", "Grey"],
-    "paypal": "JXQZS56248XNN"
+    "colors": ["Black", "Grey"]
   },
   {
     "id": 2,
     "name": "Neon Green Hoodie",
     "price": 54.99,
+    "priceInPence": 5499,
     "stock": 3,
     "image": "assets/images/hoodie2.png",
     "sizes": ["M", "L", "XL"],
-    "colors": ["Neon Green"],
-    "paypal": "JXQZS56248XNN"
+    "colors": ["Neon Green"]
   },
   {
     "id": 3,
     "name": "Vintage Red Hoodie",
     "price": 52.99,
+    "priceInPence": 5299,
     "stock": 7,
     "image": "assets/images/hoodie3.png",
     "sizes": ["S", "M", "L"],
-    "colors": ["Red"],
-    "paypal": "JXQZS56248XNN"
+    "colors": ["Red"]
   },
   {
     "id": 4,
     "name": "Minimal White Hoodie",
     "price": 47.99,
+    "priceInPence": 4799,
     "stock": 4,
     "image": "assets/images/hoodie4.png",
     "sizes": ["S", "M", "L", "XL"],
-    "colors": ["White"],
-    "paypal": "JXQZS56248XNN"
+    "colors": ["White"]
   },
   {
     "id": 5,
     "name": "Camo Hoodie",
     "price": 59.99,
+    "priceInPence": 5999,
     "stock": 2,
     "image": "assets/images/hoodie1.png",
     "sizes": ["M", "L"],
-    "colors": ["Camo"],
-    "paypal": "JXQZS56248XNN"
+    "colors": ["Camo"]
   },
   {
     "id": 6,
     "name": "Tie-Dye Hoodie",
     "price": 56.99,
+    "priceInPence": 5699,
     "stock": 6,
     "image": "assets/images/hoodie2.png",
     "sizes": ["S", "M", "L", "XL"],
-    "colors": ["Tie-Dye"],
-    "paypal": "JXQZS56248XNN"
+    "colors": ["Tie-Dye"]
   }
 ]

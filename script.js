@@ -1,101 +1,56 @@
-/* ==== GLOBALS ==== */
-const ZAPIER_WEBHOOK   = 'https://hooks.zapier.com/hooks/catch/YOUR/ZAP/ID/'; // <-- replace
+/* ===================== CONFIG ===================== */
+// If developing with `netlify dev`, keep this relative:
+const NETLIFY_FUNCTION_URL =
+    'https://clarity-shop.netlify.app/.netlify/functions/create-checkout';
 
+// Your Stripe PUBLISHABLE key (test now, live later)
+const STRIPE_PUBLISHABLE_KEY = 'pk_test_51SU8YDAGUzM7chQmp0Fm1ytVRWShLxBbjivs06CO9vatcMkKx2MHv1imGCM4RDeMFm4Nn4mabIR4X2Oc71xq9r0P00jpZECTr0';
+
+/* ===================== STATE ===================== */
 let cart = JSON.parse(localStorage.getItem('clarityCart')) || [];
+let allProducts = [];
 
-/* ==== HELPERS ==== */
-const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
+/* ===================== HELPERS ===================== */
+const $  = (s) => document.querySelector(s);
+const $$ = (s) => document.querySelectorAll(s);
 
-/* =================== PayPal JS SDK loader (Sandbox) =================== */
-const PAYPAL_CLIENT_ID = 'sb';
-let _paypalReady = null;
-function loadPayPalSdk() {
-    if (window.paypal?.Buttons) return Promise.resolve();
-    if (_paypalReady) return _paypalReady;
-
-    _paypalReady = new Promise((resolve, reject) => {
-        const s = document.createElement('script');
-        s.src = `https://www.paypal.com/sdk/js?client-id=${encodeURIComponent(PAYPAL_CLIENT_ID)}&currency=GBP&components=buttons`;
-        s.onload = () => resolve();
-        s.onerror = reject;
-        document.head.appendChild(s);
-    });
-    return _paypalReady;
+function saveCart() {
+    localStorage.setItem('clarityCart', JSON.stringify(cart));
+    updateCartUI();
 }
-
 function updateCartUI() {
-    const count = cart.reduce((s,i)=>s+i.qty,0);
-    $$('#cart-count').forEach(el=>el.textContent=count);
-}
-
-/* ==== LOAD PRODUCTS ==== */
-async function loadProducts() {
-    const res = await fetch('products.json');
-    return await res.json();
-}
-
-/* Render a PayPal "Buy Now" button into `mountEl` for product `p`.
-   getSel() must return { size, color } from the current selects. */
-async function renderPPButton(mountEl, p, getSel) {
-    await loadPayPalSdk();
-
-    // price as string with 2 dp
-    const priceStr = (Number(p.price).toFixed(2));
-
-    paypal.Buttons({
-        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'buynow' },
-
-        createOrder: (data, actions) => {
-            const sel = (typeof getSel === 'function') ? getSel() : { size: '', color: '' };
-            const size = sel?.size || '';
-            const color = sel?.color || '';
-            const desc  = [p.name, size && `(${size}`, color && `${size ? ' / ' : '('}${color}`, (size||color) && ')']
-                .filter(Boolean).join(' ').replace(/\s+/g, ' ').trim();
-
-            return actions.order.create({
-                purchase_units: [{
-                    description: desc || p.name,
-                    amount: {
-                        currency_code: 'GBP',
-                        value: priceStr,
-                        breakdown: {
-                            item_total: { currency_code: 'GBP', value: priceStr },
-                            shipping:   { currency_code: 'GBP', value: '0.00' },
-                            handling:   { currency_code: 'GBP', value: '0.00' },
-                            tax_total:  { currency_code: 'GBP', value: '0.00' }
-                        }
-                    },
-                    items: [{
-                        name: p.name,
-                        sku: p.sku || `PID-${p.id}`,
-                        quantity: '1',
-                        unit_amount: { currency_code: 'GBP', value: priceStr },
-                        description: [size, color].filter(Boolean).join(' / ')
-                    }]
-                }]
-            });
-        },
-
-        onApprove: (data, actions) =>
-            actions.order.capture().then(details => {
-                const first = details?.payer?.name?.given_name || 'customer';
-                if (typeof toast === 'function') toast(`Thanks, ${first}! Order ${details.id} complete.`);
-                console.log('PayPal order:', details);
-                // Optional: window.location = `thankyou.html?order=${details.id}`;
-            }),
-
-        onError: (err) => {
-            console.error('PayPal error:', err);
-            if (typeof toast === 'function') toast(`PayPal error: ${err?.message || err}`);
+    const count = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    $$('#cart-count').forEach(el => {
+        el.textContent = count;
+        const link = el.closest('.cart-link');
+        if (link && !link.classList.contains('pulse-active')) {
+            link.classList.add('pulse', 'pulse-active');
+            setTimeout(() => link.classList.remove('pulse', 'pulse-active'), 450);
         }
-    }).render(mountEl);
+    });
+}
+function toast(message, isError = false) {
+    const t = $('#toast'); if (!t) return;
+    t.textContent = message;
+    t.style.backgroundColor = isError ? '#d9534f' : '#111';
+    t.hidden = false; t.classList.add('show');
+    const live = $('#live'); if (live) live.textContent = message;
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.hidden = true, 300); }, 2000);
 }
 
-async function renderHome() {
-    const prods = await loadProducts();
-    const container = document.getElementById('products');
+/* ===================== DATA ===================== */
+async function loadProducts() {
+    if (allProducts.length) return allProducts;
+    const res = await fetch('products.json');
+    if (!res.ok) throw new Error(`Failed to fetch products.json (${res.status})`);
+    allProducts = await res.json();
+    return allProducts;
+}
 
+/* ===================== HOME ===================== */
+async function renderHome() {
+    const container = $('#products'); if (!container) return;
+    const prods = await loadProducts();
     container.innerHTML = prods.map(p => `
     <div class="card" data-id="${p.id}">
       <a href="product.html?id=${p.id}">
@@ -103,209 +58,209 @@ async function renderHome() {
       </a>
       <h3><a href="product.html?id=${p.id}">${p.name}</a></h3>
       <p class="price">£${Number(p.price).toFixed(2)}</p>
-      <p class="stock">Only ${p.stock} left!</p>
+      <p class="stock">${p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock'}</p>
 
-      <label>Size</label>
-      <select class="size">${(p.sizes||[]).map(s => `<option>${s}</option>`).join('')}</select>
+      <label for="size-${p.id}" class="visually-hidden">Size</label>
+      <select id="size-${p.id}" class="size" ${!p.sizes?.length ? 'hidden' : ''}>
+        ${(p.sizes || []).map(s => `<option>${s}</option>`).join('')}
+      </select>
 
-      <label>Color</label>
-      <select class="color">${(p.colors||[]).map(c => `<option>${c}</option>`).join('')}</select>
+      <label for="color-${p.id}" class="visually-hidden">Color</label>
+      <select id="color-${p.id}" class="color" ${!p.colors?.length ? 'hidden' : ''}>
+        ${(p.colors || []).map(c => `<option>${c}</option>`).join('')}
+      </select>
 
-      <div class="pp-btn" id="pp-btn-${p.id}"></div>
+      <button class="add-to-cart" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>
+        ${p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+      </button>
     </div>
   `).join('');
 
-    // Mount the PayPal button for each product
-    prods.forEach(p => {
-        const card  = container.querySelector(`.card[data-id="${p.id}"]`);
-        const mount = card.querySelector(`#pp-btn-${p.id}`);
-        const getSel = () => ({
-            size:  card.querySelector('.size')?.value,
-            color: card.querySelector('.color')?.value
-        });
-        renderPPButton(mount, p, getSel);
+    $$('.add-to-cart').forEach(btn => {
+        btn.onclick = (e) => {
+            const card = e.currentTarget.closest('.card');
+            const id   = Number(card.dataset.id);
+            const size = card.querySelector('.size')?.value || '';
+            const color= card.querySelector('.color')?.value || '';
+            const p = allProducts.find(x => x.id === id);
+            if (p) addToCart(p, size, color, e.currentTarget);
+        };
     });
 }
 
-/* ========= PRODUCT PAGE ========= */
+/* ===================== PRODUCT PAGE ===================== */
 async function renderProduct() {
+    const container = $('#product-detail'); if (!container) return;
     const id = +new URLSearchParams(location.search).get('id');
     const prods = await loadProducts();
     const p = prods.find(x => x.id === id);
     if (!p) { location.href = 'index.html'; return; }
 
-    const crumb = document.getElementById('crumb-name');
-    if (crumb) crumb.textContent = p.name;
+    const crumb = $('#crumb-name'); if (crumb) crumb.textContent = p.name;
+    document.title = `${p.name} – Clarity Hoodies`;
 
-    document.getElementById('product-detail').innerHTML = `
+    container.innerHTML = `
     <img src="${p.image}" alt="${p.name}"/>
     <div class="info">
       <h1>${p.name}</h1>
       <p class="price">£${Number(p.price).toFixed(2)}</p>
-      <p class="stock">Only ${p.stock} left!</p>
+      <p class="stock">${p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock'}</p>
 
-      <label>Size</label>
-      <select id="size">${(p.sizes||[]).map(s => `<option>${s}</option>`).join('')}</select>
+      <label for="size">Size</label>
+      <select id="size" ${!p.sizes?.length ? 'hidden' : ''}>
+        ${(p.sizes || []).map(s => `<option>${s}</option>`).join('')}
+      </select>
 
-      <label>Color</label>
-      <select id="color">${(p.colors||[]).map(c => `<option>${c}</option>`).join('')}</select>
+      <label for="color">Color</label>
+      <select id="color" ${!p.colors?.length ? 'hidden' : ''}>
+        ${(p.colors || []).map(c => `<option>${c}</option>`).join('')}
+      </select>
 
-      <div id="pp-btn-product"></div>
+      <button id="add-to-cart-product" ${p.stock === 0 ? 'disabled' : ''}>
+        ${p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+      </button>
     </div>
   `;
 
-    const getSel = () => ({
-        size:  document.getElementById('size')?.value,
-        color: document.getElementById('color')?.value
-    });
-    renderPPButton(document.getElementById('pp-btn-product'), p, getSel);
+    $('#add-to-cart-product').onclick = (e) => {
+        const size = $('#size')?.value || '';
+        const color= $('#color')?.value || '';
+        addToCart(p, size, color, e.currentTarget);
+    };
 }
 
-/* ==== CART LOGIC ==== */
-function addToCart(prod, size, color) {
-    const existing = cart.find(i=>i.id===prod.id && i.size===size && i.color===color);
+/* ===================== CART LOGIC ===================== */
+function addToCart(prod, size, color, btn) {
+    const cartId = `${prod.id}-${size}-${color}`;
+    const existing = cart.find(i => i.cartId === cartId);
+
     if (existing) {
-        if (existing.qty < prod.stock) existing.qty++;
-        else { alert('No more stock!'); return; }
+        if ((existing.quantity || 1) < prod.stock) {
+            existing.quantity = (existing.quantity || 1) + 1;
+            toast(`${prod.name} quantity updated`);
+        } else {
+            toast(`No more stock for ${prod.name}!`, true);
+            return;
+        }
     } else {
-        if (prod.stock===0) { alert('Out of stock!'); return; }
-        cart.push({id:prod.id, name:prod.name, price:prod.price, size, color, qty:1, image:prod.image, stock:prod.stock});
+        if (prod.stock === 0) { toast(`${prod.name} is out of stock!`, true); return; }
+        cart.push({
+            cartId, id: prod.id, name: prod.name,
+            price: prod.price,                // display only
+            priceInPence: prod.priceInPence,  // display only
+            size, color, quantity: 1, image: prod.image, stock: prod.stock
+        });
+        toast(`Added ${prod.name} to cart`);
     }
+
+    if (btn && !btn.classList.contains('is-added')) {
+        const original = btn.innerHTML;
+        btn.classList.add('is-added');
+        setTimeout(() => { btn.classList.remove('is-added'); btn.innerHTML = original; }, 1200);
+    }
+
     saveCart();
 }
 
-/* ==== RENDER CART PAGE ==== */
-async function renderCart() {
-    const itemsWrap = document.getElementById('cart-items');
-    const totalEl   = document.getElementById('total');
-    const ppMount   = document.getElementById('paypal-button-container');
+function removeFromCart(cartId) {
+    cart = cart.filter(i => i.cartId !== cartId);
+    saveCart();
+    renderCart();
+}
 
-    // 1) Render your cart items
-    if (!cart || cart.length === 0) {
+/* ===================== CART PAGE RENDER ===================== */
+function renderCart() {
+    const itemsWrap = $('#cart-items');
+    const totalEl   = $('#total');
+    const checkoutBtn = $('#checkout-button');
+    if (!itemsWrap) return;
+
+    if (!cart.length) {
         itemsWrap.innerHTML = `<p>Your cart is empty.</p>`;
-        totalEl.textContent = '0.00';
-        if (ppMount) ppMount.innerHTML = '';
+        if (totalEl) totalEl.textContent = '0.00';
+        if (checkoutBtn) checkoutBtn.hidden = true;
         return;
     }
 
-    // Simple line items
     itemsWrap.innerHTML = cart.map(it => `
-    <div class="cart-line">
+    <div class="cart-line" data-cart-id="${it.cartId}">
       <div class="cart-line__main">
         <strong>${it.name}</strong>
         <div class="muted">${[it.size, it.color].filter(Boolean).join(' / ')}</div>
       </div>
-      <div class="cart-line__qty">×${it.qty || 1}</div>
-      <div class="cart-line__price">£${(Number(it.price) * (it.qty||1)).toFixed(2)}</div>
+      <div class="cart-line__qty">×${it.quantity || 1}</div>
+      <div class="cart-line__price">£${(Number(it.price) * (it.quantity || 1)).toFixed(2)}</div>
+      <button class="cart-line__remove" data-cart-id="${it.cartId}">✕</button>
     </div>
   `).join('');
 
-    const grandTotal = cart.reduce((sum, it) => sum + Number(it.price) * (it.qty || 1), 0);
-    totalEl.textContent = grandTotal.toFixed(2);
+    $$('.cart-line__remove').forEach(btn => {
+        btn.onclick = (e) => removeFromCart(e.currentTarget.dataset.cartId);
+    });
 
-    // 2) Load the PayPal SDK (once)
-    await loadPayPalSdk();
+    const grand = cart.reduce((s, it) => s + Number(it.price) * (it.quantity || 1), 0);
+    if (totalEl) totalEl.textContent = grand.toFixed(2);
+    if (checkoutBtn) { checkoutBtn.hidden = false; checkoutBtn.onclick = handleCheckout; }
+}
 
-    // 3) Render the PayPal button
-    //    Build the items array for PayPal (1:1 with your cart)
-    const items = cart.map(it => ({
-        name: it.name,
-        sku: it.sku || `PID-${it.id || ''}`.trim(),
-        quantity: String(it.qty || 1),
-        unit_amount: { currency_code: 'GBP', value: Number(it.price).toFixed(2) },
-        description: [it.size, it.color].filter(Boolean).join(' / ')
-    }));
+/* ===================== STRIPE CHECKOUT ===================== */
+async function handleCheckout() {
+    const btn = $('#checkout-button'); if (!btn) return;
 
-    // Make sure container is empty before rendering (avoid duplicate buttons)
-    ppMount.innerHTML = '';
+    if (typeof Stripe === 'undefined') { toast('Payment error. Please refresh.', true); return; }
+    if (!STRIPE_PUBLISHABLE_KEY || STRIPE_PUBLISHABLE_KEY.includes('REPLACE_ME')) {
+        toast('Payment setup incomplete. Admin action required.', true); return;
+    }
 
-    paypal.Buttons({
-        style: { layout: 'vertical', color: 'gold', shape: 'rect', label: 'checkout' },
+    btn.disabled = true; btn.textContent = 'Processing…';
+    const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
 
-        createOrder: (data, actions) => {
-            const amountStr = grandTotal.toFixed(2);
+    try {
+        // Send only ids & quantities; server maps to authoritative prices
 
-            return actions.order.create({
-                purchase_units: [{
-                    amount: {
-                        currency_code: 'GBP',
-                        value: amountStr,
-                        breakdown: {
-                            item_total: { currency_code: 'GBP', value: amountStr },
-                            shipping:   { currency_code: 'GBP', value: '0.00' },
-                            handling:   { currency_code: 'GBP', value: '0.00' },
-                            tax_total:  { currency_code: 'GBP', value: '0.00' }
-                        }
-                    },
-                    items
-                }]
-            });
-        },
+        // Build items (unchanged)
+        const payloadItems = cart.map(it => ({
+            id: it.id, quantity: it.quantity || 1, size: it.size, color: it.color
+        }));
 
-        onApprove: (data, actions) =>
-            actions.order.capture().then(details => {
-                const first = details?.payer?.name?.given_name || 'customer';
-                try { toast && toast(`Thanks, ${first}! Order ${details.id} complete.`); } catch {}
-                // Clear cart and persist
-                cart = [];
-                localStorage.setItem('clarityCart', JSON.stringify(cart));
-                // Redirect or show a success message
-                window.location.href = 'index.html';
-            }),
+        // Compute subfolder from current URL, e.g. "/clarity-shop"
+        const basePath = '/' + (location.pathname.split('/').filter(Boolean)[0] || '');
 
-        onError: (err) => {
-            console.error('PayPal error:', err);
-            try { toast && toast(`PayPal error: ${err?.message || err}`); } catch {}
+        // Send to Netlify function
+        const res = await fetch(NETLIFY_FUNCTION_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ items: payloadItems, basePath })
+        });
+
+        if (!res.ok) {
+            const e = await res.json().catch(() => ({}));
+            throw new Error(e.error || `Checkout failed (${res.status})`);
         }
-    }).render(ppMount);
+        const data = await res.json();
+
+        const { error } = await stripe.redirectToCheckout({ sessionId: data.sessionId });
+        if (error) throw new Error(error.message);
+    } catch (err) {
+        console.error('Checkout error:', err);
+        toast(`Error: ${err.message}`, true);
+        btn.disabled = false; btn.textContent = 'Checkout';
+    }
 }
 
-/* ==== EMAIL via Zapier ==== */
-async function sendOrderEmail(order, items) {
-    const payload = {
-        orderId: order.id,
-        totalGBP: $('#total').textContent,
-        items: items.map(i=>`${i.name} (${i.size}/${i.color}) ×${i.qty}`),
-        customerEmail: $('#customer-email') ? $('#customer-email').value.trim() : ''
-    };
-    await fetch(ZAPIER_WEBHOOK, {
-        method:'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
+/* ===================== ROUTER ===================== */
+async function router() {
+    try {
+        await loadProducts();
+        const path = location.pathname;
+        if (path.endsWith('product.html')) renderProduct();
+        else if (path.endsWith('cart.html')) renderCart();
+        else if (path.endsWith('/') || path.endsWith('index.html')) renderHome();
+        updateCartUI();
+    } catch (e) {
+        console.error('Init error:', e);
+        const body = $('body');
+        if (body) body.innerHTML = `<h1>Error</h1><p>Could not load products.</p>`;
+    }
 }
-
-function generatePDF(order, items) {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text('Clarity – Receipt', 20, 20);
-    doc.setFontSize(12);
-    doc.text(`Order ID: ${order.id}`, 20, 35);
-    doc.text(`Total: £${$('#total').textContent}`, 20, 45);
-    let y = 60;
-    items.forEach(i=>{
-        doc.text(`${i.name} – ${i.size}/${i.color} ×${i.qty} – £${(i.price*i.qty).toFixed(2)}`, 20, y);
-        y+=10;
-    });
-    doc.save(`Clarity-receipt-${order.id}.pdf`);
-}
-
-/* === helpers (put near your other helpers) === */
-function toast(html, ms=1800){
-    const t = document.getElementById('toast');
-    if(!t) return;
-    t.innerHTML = html;
-    t.hidden = false;
-    requestAnimationFrame(()=> t.classList.add('show'));
-    // a11y live announcement
-    const live = document.getElementById('live'); if(live) live.textContent = t.textContent;
-    setTimeout(()=>{ t.classList.remove('show'); setTimeout(()=> t.hidden = true, 250); }, ms);
-}
-
-/* ==== ROUTER ==== */
-if (location.pathname.includes('product.html')) renderProduct();
-else if (location.pathname.includes('cart.html')) renderCart();
-else renderHome();
-
-updateCartUI();
+router();

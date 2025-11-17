@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Order Confirmed – Clarity</title>
+    <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+<!-- Header (same as the rest of the site) -->
+<header class="site-header simple">
+    <div class="bar bar-3col">
+        <div class="bar-left"></div>
+        <a class="brand" href="index.html" aria-label="Clarity home">
+            <img class="brand-mark" src="assets/images/arabic.png" alt="الوُضوح" />
+            <div class="brand-text">
+                <span class="brand-name">CLARITY</span>
+                <span class="brand-tagline">wear your truth</span>
+            </div>
+        </a>
+        <a class="cart-link" href="cart.html" aria-label="Cart">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
+                      fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span class="cart-text">Cart</span>
+            <span id="cart-count" class="badge">0</span>
+        </a>
+    </div>
+</header>
+
+<!-- Content card styled to blend with your site -->
+<section class="cart" style="max-width:720px;margin:40px auto">
+    <h2>Thank you — your order is confirmed 🎉</h2>
+    <p>Order reference: <strong id="order-ref">—</strong></p>
+
+    <div id="order-summary" class="card" style="padding:16px;margin-top:16px">
+        <h3 style="margin-top:0">Summary</h3>
+        <div id="items"></div>
+        <div class="total" style="margin-top:12px">Total paid: £<span id="total">0.00</span></div>
+    </div>
+
+    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
+        <a href="index.html" class="back-link">← Continue shopping</a>
+        <a href="cart.html" class="back-link">View cart</a>
+    </div>
+</section>
+
+<div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
+
+<script>
+    // Read session id from URL
+    const sessionId = new URLSearchParams(location.search).get('session_id');
+    document.getElementById('order-ref').textContent = sessionId || 'N/A';
+
+    // Read cart from localStorage for display only (Stripe already charged server-side price)
+    const stored = localStorage.getItem('clarityCart');
+    let cart = [];
+    try { cart = stored ? JSON.parse(stored) : []; } catch(e){ cart = []; }
+
+    const itemsWrap = document.getElementById('items');
+    const totalEl   = document.getElementById('total');
+    const badgeEls  = document.querySelectorAll('#cart-count');
+
+    if (cart.length) {
+        const lines = cart.map(it => `
+        <div class="cart-line" style="display:flex;justify-content:space-between;gap:12px">
+          <div>
+            <strong>${it.name}</strong>
+            <div class="muted" style="font-size:.9rem">${[it.size, it.color].filter(Boolean).join(' / ') || ''}</div>
+          </div>
+          <div>×${it.quantity || 1}</div>
+          <div>£${(Number(it.price) * (it.quantity || 1)).toFixed(2)}</div>
+        </div>
+      `).join('');
+        itemsWrap.innerHTML = lines;
+
+        const grand = cart.reduce((s, it) => s + Number(it.price) * (it.quantity || 1), 0);
+        totalEl.textContent = grand.toFixed(2);
+    } else {
+        itemsWrap.innerHTML = `<p class="muted">Your items will be in your email receipt.</p>`;
+    }
+
+    // Clear cart after rendering, then set badge to 0
+    localStorage.removeItem('clarityCart');
+    badgeEls.forEach(b => b.textContent = '0');
+
+    (async () => {
+        if (!sessionId) return;
+        try {
+            const res = await fetch(
+                'https://clarity-shop.netlify.app/.netlify/functions/retrieve-session?session_id=' + encodeURIComponent(sessionId),
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+            const s = await res.json();
+
+            // Replace local total with Stripe-confirmed total
+            if (s.amount_total != null) {
+                document.getElementById('total').textContent = (s.amount_total / 100).toFixed(2);
+            }
+            // Optional: render address or items
+            // const addr = s.shipping_details?.address;
+            // const items = s.line_items?.data ?? [];
+        } catch (e) {
+            console.warn('Could not load session details:', e);
+        }
+    })();
+
+</script>
+</body>
+</html>
