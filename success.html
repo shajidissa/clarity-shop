@@ -92,7 +92,25 @@
                 'https://clarity-shop.netlify.app/.netlify/functions/retrieve-session?session_id=' + encodeURIComponent(sessionId),
                 { headers: { 'Content-Type': 'application/json' } }
             );
+            if (!res.ok) throw new Error(`Retrieve failed: ${res.status}`);
             const s = await res.json();
+
+            // Render authoritative items from Stripe (if available)
+            if (Array.isArray(s.line_items?.data) && s.line_items.data.length) {
+                const lines = s.line_items.data.map(li => {
+                    const name = li.description || li.price?.product?.name || 'Item';
+                    const qty  = li.quantity || 1;
+                    const amount = (li.amount_total ?? (li.price?.unit_amount ?? 0) * qty) / 100;
+                    return `
+                      <div class="cart-line" style="display:flex;justify-content:space-between;gap:12px">
+                        <div><strong>${name}</strong></div>
+                        <div>×${qty}</div>
+                        <div>£${amount.toFixed(2)}</div>
+                      </div>
+                    `;
+                }).join('');
+                document.getElementById('items').innerHTML = lines;
+            }
 
             // Replace local total with Stripe-confirmed total
             if (s.amount_total != null) {
