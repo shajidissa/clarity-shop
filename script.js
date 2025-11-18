@@ -456,7 +456,11 @@ async function handleCheckout() {
 
     try {
         const payloadItems = cart.map(it => ({
-            id: it.id, quantity: it.quantity || 1, size: it.size, color: it.color
+            id: it.id,
+            quantity: it.quantity || 1,
+            size: it.size,
+            color: it.color,
+            image: it.image || (it.images && it.images[0]) || ''
         }));
         const basePath = '/' + (location.pathname.split('/').filter(Boolean)[0] || '');
 
