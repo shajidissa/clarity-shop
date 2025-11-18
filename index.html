@@ -1,117 +1,92 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Clarity • Wear Your Truth</title>
-    <link rel="stylesheet" href="style.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Clarity Hoodies</title>
+    <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
 
-<!-- ===================== HEADER ===================== -->
-<header class="site-header" id="site-header">
-    <div class="header-inner">
-        <a href="index.html" class="brand" aria-label="Clarity home">
-            <img class="brand-mark" src="assets/images/arabic.png" alt="الوُضوح" />
+<header class="site-header simple">
+    <div class="bar bar-3col">
+        <nav class="header-nav">
+            <a href="index.html">Home</a>
+            <a href="#products">Shop</a>
+            <a href="#">About</a>
+            <a href="#">Contact</a>
+        </nav>
+
+        <a class="brand" href="index.html" aria-label="Clarity home">
+            <img class="brand-mark" src="/assets/images/arabic.png" alt="الوُضوح">
             <div class="brand-text">
                 <span class="brand-name">CLARITY</span>
                 <span class="brand-tagline">wear your truth</span>
             </div>
         </a>
-
-        <nav class="nav-links">
-            <a href="index.html" class="active">Shop</a>
-            <a href="about.html">About</a>
-            <a href="contact.html">Contact</a>
-        </nav>
-
-        <a href="cart.html" class="cart-link" aria-label="Cart">
-            <svg viewBox="0 0 24 24" width="24" height="24"><path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <a class="cart-link" href="cart.html" aria-label="Cart">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+                <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
+                      fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
             <span class="cart-text">Cart</span>
             <span id="cart-count" class="badge">0</span>
         </a>
     </div>
 </header>
 
-<!-- ===================== HERO ===================== -->
-<section class="hero">
-    <div class="hero-content">
-        <h1>Wear Your Truth</h1>
-        <p class="hero-subtitle">Premium hoodies crafted with intention. Limited drops • Made to last.</p>
-        <a href="#products" class="btn-primary">Shop the Collection</a>
-    </div>
-    <div class="hero-image">
-        <img src="assets/images/hoodie1.png" alt="Clarity Hoodie" />
-    </div>
-</section>
+<main>
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Wear Your Truth</h1>
+            <p>Premium quality hoodies for every style.</p>
+            <a href="#products" class="cta-button">Shop The Collection</a>
+        </div>
+    </section>
 
-<!-- ===================== MAIN PRODUCTS ===================== -->
-<main class="main-content">
-    <section class="products container" id="products"></section>
+    <section class="product-grid-wrapper">
+        <h2>Our Collection</h2>
+        <div class="products" id="products">
+        </div>
+    </section>
 </main>
 
-<!-- ===================== FOOTER ===================== -->
 <footer class="site-footer">
-    <div class="container footer-grid">
-        <div class="footer-brand">
-            <a href="index.html" class="brand-footer">
-                <img class="brand-mark" src="assets/images/arabic.png" alt="الوُضوح" />
-                <div>
-                    <span class="brand-name">CLARITY</span>
-                    <span class="brand-tagline">wear your truth</span>
-                </div>
-            </a>
-            <p class="footer-desc">Premium streetwear blending Arabic calligraphy with modern minimalism.</p>
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>About Clarity</h4>
+            <p>Wear your truth. We provide high-quality, comfortable apparel that speaks for itself. Based in the UK.</p>
         </div>
-
-        <div class="footer-links">
-            <h4>Shop</h4>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
             <ul>
-                <li><a href="index.html">All Products</a></li>
-                <li><a href="#">New Arrivals</a></li>
-                <li><a href="#">Best Sellers</a></li>
-            </ul>
-        </div>
-
-        <div class="footer-links">
-            <h4>Company</h4>
-            <ul>
-                <li><a href="about.html">About Us</a></li>
-                <li><a href="contact.html">Contact</a></li>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="#">About Us</a></li>
+                <li><a href="#">FAQ</a></li>
                 <li><a href="#">Shipping & Returns</a></li>
-                <li><a href="#">Privacy Policy</a></li>
             </ul>
         </div>
-
-        <div class="footer-newsletter">
-            <h4>Stay Updated</h4>
-            <p>Get early access to drops & exclusive offers.</p>
-            <form>
-                <input type="email" placeholder="Your email" required />
-                <button type="submit">Subscribe</button>
-            </form>
-        </div>
-    </div>
-
-    <div class="footer-bottom">
-        <div class="container">
-            <p>&copy; 2025 Clarity. All rights reserved.</p>
-            <div class="social-links">
-                <a href="#" aria-label="Instagram">Instagram</a>
-                <a href="#" aria-label="Twitter">Twitter</a>
-                <a href="#" aria-label="TikTok">TikTok</a>
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <ul>
+                <li><a href="mailto:hello@clarity.com">hello@clarity.com</a></li>
+                <li><a href="tel:+441234567890">+44 123 456 7890</a></li>
+            </ul>
+            <div class="footer-socials">
+                <a href="#" aria-label="Instagram">IG</a>
+                <a href="#" aria-label="Facebook">FB</a>
+                <a href="#" aria-label="Twitter">X</a>
             </div>
         </div>
     </div>
+    <div class="footer-bottom-bar">
+        &copy; 2025 Clarity. All Rights Reserved.
+    </div>
 </footer>
 
-<!-- ===================== WHATSAPP & TOAST ===================== -->
 <div class="whatsapp">
     <a href="https://wa.me/1234567890" target="_blank" rel="noopener">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Chat on WhatsApp" />
+        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Chat"/>
     </a>
 </div>
 
@@ -119,17 +94,5 @@
 <div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
 
 <script src="script.js"></script>
-
-<script>
-    // Simple header scroll effect
-    window.addEventListener('scroll', () => {
-        const header = document.getElementById('site-header');
-        if (window.scrollY > 100) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
-</script>
 </body>
 </html>
