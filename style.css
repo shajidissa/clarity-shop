@@ -699,3 +699,31 @@ img{max-width:100%;display:block}
         margin-right: 4px; /* Nudge it in a bit */
     }
 }
+
+/* ... rest of your style.css ... */
+
+/* --- Site Footer --- */
+.site-footer {
+    background: #0b0d0f; /* Dark background */
+    color: #cbd5e1;     /* Muted text */
+    padding: 48px 5%;
+    margin-top: 40px; /* Space above footer */
+}
+/* ... footer-grid and footer-col styles ... */
+.footer-socials {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+.footer-socials a {
+    /* FIX: Remove default font-weight, use font size for icon sizing */
+    font-weight: normal;
+    font-size: 1.5rem; /* Make the icons a decent size */
+    color: #cbd5e1; /* Initial icon color */
+    transition: color 0.2s ease;
+}
+.footer-socials a:hover {
+    /* Hover effect for icons */
+    color: var(--accent);
+}
+/* ... rest of your style.css ... */
