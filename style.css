@@ -903,3 +903,30 @@ img{max-width:100%;display:block}
         flex: 0 0 var(--pd-thumb-m); /* <-- pin width on mobile too */
     }
 }
+
+/* === Quantity control — product page only === */
+#product-detail .qty-control{
+    display:inline-flex; align-items:center; gap:8px;
+    margin:.6rem 0 1rem; user-select:none;
+}
+#product-detail .qty-btn{
+    background:#f3f4f6; border:1px solid #e5e7eb; color:#111;
+    width:34px; height:34px; border-radius:6px; font-weight:700;
+    display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
+}
+#product-detail .qty-input{
+    width:72px; text-align:center; padding:.5rem;
+    border:1px solid #e5e7eb; border-radius:6px;
+}
+
+/* Stack quantity then button on product page */
+#product-detail .pd-actions{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    align-items:flex-start;
+    max-width:320px; /* keeps it tidy */
+}
+#product-detail .pd-actions #add-to-cart-product{
+    width:100%;
+}

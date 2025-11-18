@@ -51,30 +51,34 @@ async function loadProducts() {
 async function renderHome() {
     const container = $('#products'); if (!container) return;
     const prods = await loadProducts();
-    container.innerHTML = prods.map(p => `
-    <div class="card" data-id="${p.id}">
-      <a href="product.html?id=${p.id}">
-        <img src="${p.image}" alt="${p.name}"/>
-      </a>
-      <h3><a href="product.html?id=${p.id}">${p.name}</a></h3>
-      <p class="price">£${Number(p.price).toFixed(2)}</p>
-      <p class="stock">${p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock'}</p>
 
-      <label for="size-${p.id}" class="visually-hidden">Size</label>
-      <select id="size-${p.id}" class="size" ${!p.sizes?.length ? 'hidden' : ''}>
-        ${(p.sizes || []).map(s => `<option>${s}</option>`).join('')}
-      </select>
+    container.innerHTML = prods.map(p => {
+        const imgSrc = (Array.isArray(p.images) && p.images.length ? p.images[0] : p.image);
+        return `
+      <div class="card" data-id="${p.id}">
+        <a href="product.html?id=${p.id}">
+          <img src="${imgSrc}" alt="${p.name}"/>
+        </a>
+        <h3><a href="product.html?id=${p.id}">${p.name}</a></h3>
+        <p class="price">£${Number(p.price).toFixed(2)}</p>
+        <p class="stock">${p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock'}</p>
 
-      <label for="color-${p.id}" class="visually-hidden">Color</label>
-      <select id="color-${p.id}" class="color" ${!p.colors?.length ? 'hidden' : ''}>
-        ${(p.colors || []).map(c => `<option>${c}</option>`).join('')}
-      </select>
+        <label for="size-${p.id}" class="visually-hidden">Size</label>
+        <select id="size-${p.id}" class="size" ${!p.sizes?.length ? 'hidden' : ''}>
+          ${(p.sizes || []).map(s => `<option>${s}</option>`).join('')}
+        </select>
 
-      <button class="add-to-cart" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>
-        ${p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-      </button>
-    </div>
-  `).join('');
+        <label for="color-${p.id}" class="visually-hidden">Color</label>
+        <select id="color-${p.id}" class="color" ${!p.colors?.length ? 'hidden' : ''}>
+          ${(p.colors || []).map(c => `<option>${c}</option>`).join('')}
+        </select>
+
+        <button class="add-to-cart" data-id="${p.id}" ${p.stock === 0 ? 'disabled' : ''}>
+          ${p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+        </button>
+      </div>
+    `;
+    }).join('');
 
     $$('.add-to-cart').forEach(btn => {
         btn.onclick = (e) => {
@@ -83,41 +87,37 @@ async function renderHome() {
             const size = card.querySelector('.size')?.value || '';
             const color= card.querySelector('.color')?.value || '';
             const p = allProducts.find(x => x.id === id);
-            if (p) addToCart(p, size, color, e.currentTarget);
+            if (p) addToCart(p, size, color, 1, e.currentTarget); // index always adds 1
         };
     });
 }
 
 /* ===================== PRODUCT PAGE ===================== */
-// FULL REPLACEMENT
-// FULL REPLACEMENT
 async function renderProduct() {
-    const mount = document.getElementById('product-detail') || document.querySelector('.product-detail');
+    const mount = document.getElementById('product-detail');
     if (!mount) return; // not on product page
 
     const id = parseInt(new URLSearchParams(location.search).get('id'), 10);
-    const products = await loadProducts();
-    const p = products.find(x => x.id === id);
+    const products = await (await fetch('products.json')).json();
+    const p = products.find(x => Number(x.id) === id);
     if (!p) { location.href = 'index.html'; return; }
 
-    // Breadcrumb + title
     const crumb = document.getElementById('crumb-name');
     if (crumb) crumb.textContent = p.name;
-    document.title = `${p.name} – Clarity Hoodies`;
+    document.title = `${p.name} – Clarity`;
 
-    // Use images[] if present; else fallback to single image
     const images = (Array.isArray(p.images) && p.images.length) ? p.images : [p.image];
     const sizes  = Array.isArray(p.sizes)  ? p.sizes  : [];
     const colors = Array.isArray(p.colors) ? p.colors : [];
+    const pricePence = p.priceInPence ?? Math.round((p.price || 0) * 100);
 
-    // Build gallery + info INSIDE the product container only
     mount.innerHTML = `
     <div class="pd-wrap">
       <div class="pd-gallery">
         <div class="pd-thumbs" id="pdThumbs">
           ${images.map((src, i) => `
-            <button class="pd-thumb ${i === 0 ? 'is-active' : ''}" type="button" data-src="${src}">
-              <img src="${src}" alt="${p.name} ${i + 1}">
+            <button class="pd-thumb ${i===0 ? 'is-active' : ''}" type="button" data-src="${src}">
+              <img src="${src}" alt="${p.name} ${i+1}">
             </button>
           `).join('')}
         </div>
@@ -128,27 +128,36 @@ async function renderProduct() {
 
       <aside class="info pd-info">
         <h1>${p.name}</h1>
-        <p class="price">£${Number(p.price).toFixed(2)}</p>
-        <p class="stock">${p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock'}</p>
+        <p class="price">£${(pricePence/100).toFixed(2)}</p>
+        ${typeof p.stock === 'number' ? `<p class="stock">${p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock'}</p>` : ''}
 
         ${sizes.length ? `
-          <label for="size">Size</label>
-          <select id="size">${sizes.map(s => `<option>${s}</option>`).join('')}</select>
+          <label for="pdSize">Size</label>
+          <select id="pdSize">${sizes.map(s => `<option>${s}</option>`).join('')}</select>
         ` : ''}
 
         ${colors.length ? `
-          <label for="color">Color</label>
-          <select id="color">${colors.map(c => `<option>${c}</option>`).join('')}</select>
+          <label for="pdColor">Color</label>
+          <select id="pdColor">${colors.map(c => `<option>${c}</option>`).join('')}</select>
         ` : ''}
 
-        <button id="add-to-cart-product" ${p.stock === 0 ? 'disabled' : ''}>
-          ${p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-        </button>
+        <div class="pd-actions">
+          <label for="pdQty">Quantity</label>
+          <div class="qty-control">
+            <button type="button" class="qty-btn" data-delta="-1" aria-label="Decrease">−</button>
+            <input id="pdQty" class="qty-input" type="number" min="1" value="1" inputmode="numeric">
+            <button type="button" class="qty-btn" data-delta="1" aria-label="Increase">+</button>
+          </div>
+
+          <button id="add-to-cart-product" ${p.stock === 0 ? 'disabled' : ''}>
+            ${p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+          </button>
+        </div>
       </aside>
     </div>
   `;
 
-    // Click-to-swap thumbnails
+    // Thumbs → swap main
     const main = mount.querySelector('#pdMain');
     mount.querySelectorAll('.pd-thumb').forEach(btn => {
         btn.addEventListener('click', () => {
@@ -159,43 +168,86 @@ async function renderProduct() {
         });
     });
 
-    // Keep your existing addToCart flow
-    const addBtn = document.getElementById('add-to-cart-product');
-    if (addBtn) {
-        addBtn.onclick = (e) => {
-            const size  = document.getElementById('size')?.value || '';
-            const color = document.getElementById('color')?.value || '';
-            try { addToCart(p, size, color, e.currentTarget); }
-            catch { addToCart(p, size, color); }
-            toast(`${p.name} added to cart`);
-        };
-    }
+    // Quantity stepper
+    const qtyEl = mount.querySelector('#pdQty');
+    mount.querySelectorAll('.qty-btn').forEach(b => {
+        b.addEventListener('click', () => {
+            const delta = +b.dataset.delta;
+            qtyEl.value = Math.max(1, (parseInt(qtyEl.value || '1', 10) + delta));
+        });
+    });
+
+    // Add to cart (pass exact quantity)
+    const addBtn = mount.querySelector('#add-to-cart-product');
+    addBtn?.addEventListener('click', (e) => {
+        const qty   = Math.max(1, parseInt(qtyEl.value || '1', 10));
+        const size  = mount.querySelector('#pdSize')?.value || '';
+        const color = mount.querySelector('#pdColor')?.value || '';
+
+        // Use new qty-aware addToCart
+        addToCart({
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            priceInPence: pricePence,
+            image: images[0],
+            size, color,
+            stock: p.stock
+        }, size, color, qty, e.currentTarget);
+
+        if (typeof toast === 'function') toast(`Added ${qty} × ${p.name}`);
+    });
 }
 
 /* ===================== CART LOGIC ===================== */
-function addToCart(prod, size, color, btn) {
+function addToCart(prod, size = '', color = '', maybeQtyOrBtn, maybeBtn) {
+    // Parse optional qty and button
+    let qty = 1, btn = null;
+    if (typeof maybeQtyOrBtn === 'number') {
+        qty = Math.max(1, parseInt(maybeQtyOrBtn, 10) || 1);
+        btn = maybeBtn || null;
+    } else {
+        btn = maybeQtyOrBtn || null;
+    }
+
+    const pricePence = prod.priceInPence ?? Math.round((prod.price || 0) * 100);
+    const img0 = (Array.isArray(prod.images) && prod.images.length ? prod.images[0] : prod.image) || '';
+
     const cartId = `${prod.id}-${size}-${color}`;
     const existing = cart.find(i => i.cartId === cartId);
 
+    // Respect stock if provided
+    const stock = (typeof prod.stock === 'number') ? prod.stock : Infinity;
+
     if (existing) {
-        if ((existing.quantity || 1) < prod.stock) {
-            existing.quantity = (existing.quantity || 1) + 1;
-            toast(`${prod.name} quantity updated`);
+        const current = existing.quantity || 1;
+        const next = current + qty;
+        if (next > stock) {
+            existing.quantity = stock; // clamp
+            toast(`Only ${stock} in stock — set to ${stock}`, true);
         } else {
-            toast(`No more stock for ${prod.name}!`, true);
-            return;
+            existing.quantity = next;
+            toast(`${prod.name} quantity updated`);
         }
     } else {
-        if (prod.stock === 0) { toast(`${prod.name} is out of stock!`, true); return; }
+        if (stock < 1) { toast(`${prod.name} is out of stock!`, true); return; }
+        const initialQty = Math.min(qty, stock);
+        if (qty > stock) toast(`Only ${stock} in stock — added ${stock}`, true);
+
         cart.push({
-            cartId, id: prod.id, name: prod.name,
-            price: prod.price,                // display only
-            priceInPence: prod.priceInPence,  // display only
-            size, color, quantity: 1, image: prod.image, stock: prod.stock
+            cartId,
+            id: prod.id,
+            name: prod.name,
+            price: prod.price,               // display
+            priceInPence: pricePence,        // accurate calc
+            size, color,
+            quantity: initialQty,
+            image: img0,
+            stock
         });
-        toast(`Added ${prod.name} to cart`);
     }
 
+    // Button feedback
     if (btn && !btn.classList.contains('is-added')) {
         const original = btn.innerHTML;
         btn.classList.add('is-added');
@@ -232,7 +284,7 @@ function renderCart() {
         <div class="muted">${[it.size, it.color].filter(Boolean).join(' / ')}</div>
       </div>
       <div class="cart-line__qty">×${it.quantity || 1}</div>
-      <div class="cart-line__price">£${(Number(it.price) * (it.quantity || 1)).toFixed(2)}</div>
+      <div class="cart-line__price">£${(Number(it.price ?? (it.priceInPence/100)) * (it.quantity || 1)).toFixed(2)}</div>
       <button class="cart-line__remove" data-cart-id="${it.cartId}">✕</button>
     </div>
   `).join('');
@@ -241,7 +293,11 @@ function renderCart() {
         btn.onclick = (e) => removeFromCart(e.currentTarget.dataset.cartId);
     });
 
-    const grand = cart.reduce((s, it) => s + Number(it.price) * (it.quantity || 1), 0);
+    const grand = cart.reduce((s, it) => {
+        const unit = Number(it.price ?? (it.priceInPence/100));
+        return s + unit * (it.quantity || 1);
+    }, 0);
+
     if (totalEl) totalEl.textContent = grand.toFixed(2);
     if (checkoutBtn) { checkoutBtn.hidden = false; checkoutBtn.onclick = handleCheckout; }
 }
@@ -259,17 +315,11 @@ async function handleCheckout() {
     const stripe = Stripe(STRIPE_PUBLISHABLE_KEY);
 
     try {
-        // Send only ids & quantities; server maps to authoritative prices
-
-        // Build items (unchanged)
         const payloadItems = cart.map(it => ({
             id: it.id, quantity: it.quantity || 1, size: it.size, color: it.color
         }));
-
-        // Compute subfolder from current URL, e.g. "/clarity-shop"
         const basePath = '/' + (location.pathname.split('/').filter(Boolean)[0] || '');
 
-        // Send to Netlify function
         const res = await fetch(NETLIFY_FUNCTION_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
