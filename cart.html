@@ -7,51 +7,39 @@
 
     <link rel="stylesheet" href="style.css"/>
 
-    <!-- Scoped fixes for the cart layout/alignment only -->
+    <!-- Scoped styles (cart only) -->
     <style>
         .c-wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px; }
         .c-card { background:#fff; border:1px solid #edf1f5; border-radius:14px; padding:16px; box-shadow:0 3px 10px rgba(0,0,0,.06); }
         .c-head { font-size:1.5rem; font-weight:800; margin:6px 0 16px; }
 
-        /* ===== Desktop row grid (adds a dedicated SUBTOTAL track) ===== */
+        /* Desktop row grid: thumb | name | price | qty | sub | trash */
         .c-line{
             display:grid;
-            grid-template-areas:
-      "thumb name price qty sub trash";
-            grid-template-columns:
-      80px           /* thumb  */
-      minmax(0,1fr)  /* name   */
-      96px           /* price  */
-      148px          /* qty    */
-      110px          /* sub    */
-      34px;          /* trash  */
-            gap:12px;
-            align-items:center;
-            padding:12px;
-            border:1px solid #eef1f4;
-            border-radius:12px;
-            background:#fff;
-            margin-bottom:12px;
-            grid-auto-rows:auto; /* <-- no fixed min-row height */
+            grid-template-areas: "thumb name price qty sub trash";
+            grid-template-columns: 80px minmax(0,1fr) 96px 148px 110px 34px;
+            gap:12px; align-items:center;
+            padding:12px; border:1px solid #eef1f4; border-radius:12px;
+            background:#fff; margin-bottom:12px; grid-auto-rows:auto;
         }
 
-        .c-thumb   { grid-area:thumb; }
-        .c-main    { grid-area:name; align-self:start; position:relative; } /* position for trash on mobile */
-        .c-price   { grid-area:price; text-align:right; justify-self:end; font-variant-numeric:tabular-nums; color:#6b7280; }
-        .c-qtycol  { grid-area:qty;   justify-self:end; }
-        .c-sub     { grid-area:sub;   text-align:right; justify-self:end; font-variant-numeric:tabular-nums; }
-        .c-remove  { grid-area:trash; justify-self:end; }
-
+        .c-thumb{ grid-area:thumb; }
         .c-thumb img{ width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #eef1f4; }
+        .c-main { grid-area:name; align-self:start; position:relative; }
+        .c-name { font-weight:800; }
+        .c-meta { color:#69707a; font-size:.92rem; margin-top:4px; }
+        .c-price{ grid-area:price; text-align:right; justify-self:end; font-variant-numeric:tabular-nums; color:#6b7280; }
+        .c-qtycol{ grid-area:qty;   justify-self:end; }
+        .c-sub  { grid-area:sub;   text-align:right; justify-self:end; font-variant-numeric:tabular-nums; }
+        .c-sub strong { font-weight:800; }
+        .c-remove{ grid-area:trash; justify-self:end; background:transparent;border:none;line-height:0;padding:.35rem;border-radius:8px;cursor:pointer; }
+        .c-remove svg{ width:18px;height:18px;stroke:#d20000;fill:none;stroke-width:2; }
+        .c-remove:hover{ background:#d20000; }
+        .c-remove:hover svg{ stroke:#fff; }
 
-        .c-name{ font-weight:800; }
-        .c-meta{ color:#69707a; font-size:.92rem; margin-top:4px; }
-
-        .c-sub strong{ font-weight:800; }
-
+        /* qty control */
         .c-qty{
-            display:inline-grid;
-            grid-template-columns:32px 56px 32px;
+            display:inline-grid; grid-template-columns:32px 56px 32px;
             border:1px solid #e5e7eb; border-radius:8px; overflow:hidden;
         }
         .c-qtybtn{
@@ -62,70 +50,38 @@
         .c-qtybtn:hover{ background:#f6f7f9; }
         .c-qty input{ width:56px;text-align:center;border:none;outline:none;padding:.48rem 0;font-size:.95rem; }
 
-        .c-remove{ background:transparent;border:none;line-height:0;padding:.35rem;border-radius:8px;cursor:pointer; }
-        .c-remove svg{ width:18px;height:18px;stroke:#d20000;fill:none;stroke-width:2; }
-        .c-remove:hover{ background:#d20000; }
-        .c-remove:hover svg{ stroke:#fff; }
-
         .c-empty{ padding:20px; color:#6b7280; }
 
+        /* Actions: Total (left) + Checkout (right) on desktop; stack on mobile */
         .c-actions{
-            display:flex;
-            flex-direction:column;
-            align-items:flex-end;
-            gap:12px;
-            margin-top:16px;
+            display:flex; justify-content:space-between; align-items:center;
+            gap:12px; margin-top:16px;
         }
-        .c-total{ font-weight:600; }
         .c-total strong{ font-size:1.2rem; margin-left:.5rem; }
-
         .c-btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px;
             font-weight:700; border-radius:8px; cursor:pointer; user-select:none;
             padding:.8rem 1.2rem; border:1px solid transparent; white-space:nowrap; }
-        .c-btn-outline{ background:#fff;color:#111;border-color:#e5e7eb; }
-        .c-btn-outline:hover{ background:#f7f7f7; }
         .c-btn-primary{ background:#ec0e63;color:#fff;border-color:#ec0e63; }
         .c-btn-primary:hover{ background:#c2185b;border-color:#c2185b; }
 
-        /* ===== Mobile (compact, no image spanning, aligned trash) ===== */
+        .c-stock-note{ font-size:.85rem; color:#6b7280; margin-top:4px; }
+
+        /* Mobile layout: name → qty → subtotal; hide unit price to avoid duplicate prices */
         @media (max-width:720px){
             .c-line{
-                grid-template-columns:72px 1fr;        /* image + text column */
+                grid-template-columns:72px 1fr;
                 grid-template-areas:
-      "thumb name"     /* title/description on the right of the thumbnail */
-      "qty   qty"      /* quantity directly under description */
-      "sub   sub";     /* subtotal directly under quantity */
-                grid-auto-rows:auto;
+          "thumb name"
+          "qty   qty"
+          "sub   sub";
                 align-items:start;
             }
-
-            .c-thumb{ align-self:start; }
-
-            /* Bin icon stays top-right inside the name block */
+            .c-price{ display:none; } /* keep it simple on phones */
             .c-remove{ grid-area:name; position:absolute; right:0; top:-2px; padding:.25rem; }
-            .c-main{ padding-right:28px; } /* room for trash icon */
-
-            /* Quantity controls full-width, left aligned */
-            .c-qtycol{
-                grid-area:qty;
-                justify-self:start;
-                margin-top:8px;
-            }
-
-            /* Subtotal now sits under quantity; right align if you prefer it on the edge */
-            .c-sub{
-                grid-area:sub;
-                justify-self:end;      /* change to 'start' if you want it left-aligned */
-                text-align:right;
-                margin-top:6px;
-            }
-            .c-sub strong{ font-weight:800; }
-
-            /* Hide the small unit price on phones to prevent duplicate prices */
-            .c-price{ display:none; }
-
-            /* Actions go full width on mobile */
-            .c-actions{ align-items:stretch; }
+            .c-main{ padding-right:28px; }
+            .c-qtycol{ justify-self:start; margin-top:8px; }
+            .c-sub{ justify-self:end; text-align:right; margin-top:6px; }
+            .c-actions{ flex-direction:column; align-items:stretch; }
             .c-btn{ width:100%; }
         }
     </style>
@@ -134,7 +90,6 @@
 </head>
 <body>
 
-<!-- Header (same as site) -->
 <header class="site-header simple">
     <div class="bar bar-3col">
         <nav class="header-nav">
@@ -168,15 +123,13 @@
     <div class="c-card">
         <div id="c-items"></div>
 
-        <div class="c-actions">
-            <div class="c-total">Total<strong>£<span id="c-total">0.00</span></strong></div>
-            <button id="c-update" class="c-btn c-btn-outline" type="button">Update Cart</button>
-            <button id="checkout-button" class="c-btn c-btn-primary" type="button" hidden>Checkout</button>
+        <div class="c-actions" id="cartActions">
+            <div class="c-total">Total <strong id="cartTotal">£0.00</strong></div>
+            <button class="c-btn c-btn-primary" id="checkoutBtn">Checkout</button>
         </div>
     </div>
 </main>
 
-<!-- Footer (same as site) -->
 <footer class="site-footer" id="site-footer">
     <div class="footer-grid">
         <div class="footer-col">
@@ -213,12 +166,10 @@
 
 <script src="script.js"></script>
 <script>
-    /* cart renderer – uses your existing localStorage + Stripe handler */
     (function(){
-        const listEl   = document.getElementById('c-items');
-        const totalEl  = document.getElementById('c-total');
-        const updBtn   = document.getElementById('c-update');
-        const coBtn    = document.getElementById('checkout-button');
+        const listEl  = document.getElementById('c-items');
+        const totalEl = document.getElementById('cartTotal');
+        const coBtn   = document.getElementById('checkoutBtn');
 
         function getCart(){
             try { return JSON.parse(localStorage.getItem('clarityCart')) || []; }
@@ -226,117 +177,166 @@
         }
         function setCart(arr){
             localStorage.setItem('clarityCart', JSON.stringify(arr));
+            // refresh header badge
             const count = arr.reduce((s,i)=>s+(i.quantity||1),0);
             document.querySelectorAll('#cart-count').forEach(el=>el.textContent=count);
         }
         const key = it => it.cartId || (it.id + '-' + (it.size||'') + '-' + (it.color||''));
 
-        function liveToast(msg){
-            const t = document.getElementById('toast'); if(!t){ alert(msg); return; }
-            t.textContent = msg; t.hidden = false; setTimeout(()=> t.hidden = true, 1500);
+        function renderTotals(cart){
+            const grand = cart.reduce((sum,it)=>{
+                const unit = Number(it.price ?? (it.priceInPence/100));
+                return sum + unit * (it.quantity || 1);
+            },0);
+            totalEl.textContent = '£' + grand.toFixed(2);
         }
 
-        function previewTotals(){
-            let g = 0;
-            document.querySelectorAll('.c-line').forEach(row=>{
-                const unit = Number(row.dataset.unit);
-                const qty  = Math.max(0, parseInt(row.querySelector('.c-qty input').value||'0',10));
-                const sub  = unit * qty;
-                row.querySelector('.c-sub').innerHTML = '<strong>£'+sub.toFixed(2)+'</strong>';
-                g += sub;
-            });
-            totalEl.textContent = g.toFixed(2);
+        let STOCK = null;
+
+        async function loadStock() {
+            try {
+                const res = await fetch('products.json', { cache: 'no-cache' });
+                STOCK = await res.json();
+            } catch (e) {
+                console.error('Failed to load stock:', e);
+                STOCK = null; // fall back to no limit
+            }
+        }
+
+        (async function(){
+            await loadStock();        // <= make sure STOCK is ready
+            setCart(getCart());       // refresh badge
+            render();                 // render with proper limits
+        })();
+
+        function maxForItem(it) {
+            if (!STOCK) return Infinity;
+            const p = STOCK.find(x => String(x.id) === String(it.id));
+            if (!p) return Infinity;
+
+            // If your products have size-level stock like p.sizes["M"].stock
+            if (it.size && p.sizes && p.sizes[it.size] && typeof p.sizes[it.size].stock === 'number') {
+                return p.sizes[it.size].stock;
+            }
+
+            // Otherwise fall back to product-level stock fields
+            if (typeof p.stock === 'number') return p.stock;
+            if (typeof p.inventory === 'number') return p.inventory;
+
+            return Infinity;
         }
 
         function render(){
-            const cart = getCart();
+            let cart = getCart();
 
             if (!cart.length){
                 listEl.innerHTML = '<div class="c-empty">Your cart is empty.</div>';
-                totalEl.textContent = '0.00';
-                updBtn.disabled = true; coBtn.hidden = true;
+                renderTotals(cart);
+                coBtn.hidden = true;
                 return;
             }
-            updBtn.disabled = false; coBtn.hidden = false;
+            coBtn.hidden = false;
 
             listEl.innerHTML = cart.map(it=>{
                 const unit = Number(it.price ?? (it.priceInPence/100));
-                const qty  = it.quantity || 1;
-                const sub  = unit * qty;
+                let   qty  = it.quantity || 1;
+
                 const img  = it.image || (it.images && it.images[0]) || '';
                 const meta = [it.size, it.color].filter(Boolean).join(' / ') || '-';
+                const max  = maxForItem(it);
+
+                // clamp to stock on first render if user had more than available
+                if (Number.isFinite(max) && qty > max) { qty = it.quantity = max; }
+
+                const sub  = unit * qty;
 
                 return `
-      <div class="c-line" data-id="${key(it)}" data-unit="${unit}">
-        <div class="c-thumb">${img ? `<img src="${img}" alt="${it.name}">` : ''}</div>
-        <div class="c-main">
-          <div class="c-name">${it.name}</div>
-          <div class="c-meta">${meta}</div>
-        </div>
-        <div class="c-price">£${unit.toFixed(2)}</div>
-        <div class="c-qtycol">
-          <div class="c-qty">
-            <button class="c-qtybtn" data-d="-1" aria-label="Decrease">−</button>
-            <input type="number" min="0" value="${qty}">
-            <button class="c-qtybtn" data-d="1" aria-label="Increase">+</button>
-          </div>
-        </div>
-        <div class="c-sub"><strong>£${sub.toFixed(2)}</strong></div>
-        <button class="c-remove" title="Remove" aria-label="Remove">
-          <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 4v8m4-8v8m4-8v8"/></svg>
-        </button>
-      </div>`;
+  <div class="c-line" data-id="${key(it)}" data-unit="${unit}" data-max="${max}">
+    <div class="c-thumb">${img ? `<img src="${img}" alt="${it.name}">` : ''}</div>
+
+    <div class="c-main">
+      <div class="c-name">${it.name}</div>
+      <div class="c-meta">${meta}</div>
+      ${Number.isFinite(max) ? `<div class="c-stock-note">Only ${max} left</div>` : ``}
+      <button class="c-remove" title="Remove" aria-label="Remove">
+        <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 4v8m4-8v8m4-8v8"/></svg>
+      </button>
+    </div>
+
+    <div class="c-price">£${unit.toFixed(2)}</div>
+
+    <div class="c-qtycol">
+      <div class="c-qty">
+        <button class="c-qtybtn" data-d="-1" aria-label="Decrease">−</button>
+        <input class="qty-input" type="number" min="1" value="${qty}">
+        <button class="c-qtybtn" data-d="1" aria-label="Increase">+</button>
+      </div>
+    </div>
+
+    <div class="c-sub"><strong>£${sub.toFixed(2)}</strong></div>
+  </div>`;
             }).join('');
 
-            listEl.querySelectorAll('.c-qtybtn').forEach(b=>{
-                b.addEventListener('click', e=>{
-                    const row = e.currentTarget.closest('.c-line');
-                    const inp = row.querySelector('.c-qty input');
-                    const d   = parseInt(e.currentTarget.dataset.d,10);
-                    inp.value = Math.max(0, parseInt(inp.value||'0',10) + d);
-                    previewTotals();
-                });
-            });
-            listEl.querySelectorAll('.c-qty input').forEach(inp=>{
-                inp.addEventListener('input', previewTotals);
+            // Handlers: qty +/− / input → save immediately
+            // Handlers: qty +/− / input → save immediately (and reflect in input)
+            listEl.querySelectorAll('.c-line').forEach(row=>{
+                const cartId = row.dataset.id;
+                const minus  = row.querySelector('[data-d="-1"]');
+                const plus   = row.querySelector('[data-d="1"]');
+                const input  = row.querySelector('.qty-input');
+                const subEl  = row.querySelector('.c-sub strong');
+                const max    = Number(row.dataset.max); // may be NaN -> Infinity below
+
+                const lim = Number.isFinite(max) ? max : Infinity;
+
+                function setQty(next) {
+                    const desired = parseInt(next, 10);
+                    const clamped = Math.max(1, Math.min(lim, isNaN(desired) ? 1 : desired));
+
+                    // update model
+                    let c = getCart();
+                    const i = c.findIndex(x => key(x) === cartId);
+                    if (i < 0) return;
+                    c[i].quantity = clamped;
+                    setCart(c);
+
+                    // update UI
+                    input.value = clamped;
+                    const unit = Number(c[i].price ?? (c[i].priceInPence/100));
+                    subEl.textContent = '£' + (unit * clamped).toFixed(2);
+                    renderTotals(c);
+
+                    // enable/disable buttons at bounds
+                    minus.disabled = (clamped <= 1);
+                    plus.disabled  = (clamped >= lim && Number.isFinite(lim));
+                }
+
+                // initial state
+                setQty(input.value);
+
+                minus.addEventListener('click', e => { e.preventDefault(); setQty((parseInt(input.value||'1',10) - 1)); });
+                plus .addEventListener('click', e => { e.preventDefault(); setQty((parseInt(input.value||'1',10) + 1)); });
+                input.addEventListener('input', e => setQty(e.target.value));
             });
 
+            // Remove
             listEl.querySelectorAll('.c-remove').forEach(btn=>{
-                btn.addEventListener('click', e=>{
-                    const id = e.currentTarget.closest('.c-line').dataset.id;
-                    const nxt = getCart().filter(it => key(it)!==id);
-                    setCart(nxt); render();
+                btn.addEventListener('click', ()=>{
+                    let cart = getCart().filter(it => key(it)!==btn.closest('.c-line').dataset.id);
+                    setCart(cart);
+                    render();
                 });
             });
 
-            previewTotals();
+            renderTotals(cart);
         }
 
-        document.getElementById('c-update').addEventListener('click', ()=>{
-            const cart = getCart();
-            let changed = false;
-
-            document.querySelectorAll('.c-line').forEach(row=>{
-                const id  = row.dataset.id;
-                const qty = Math.max(0, parseInt(row.querySelector('.c-qty input').value||'0',10));
-                const i   = cart.findIndex(it => key(it)===id);
-                if (i>=0){
-                    if (qty===0){ cart.splice(i,1); changed = true; }
-                    else if ((cart[i].quantity||1) !== qty){ cart[i].quantity = qty; changed = true; }
-                }
-            });
-
-            if (changed){ setCart(cart); liveToast('Cart updated'); }
-            render();
-        });
-
-        document.getElementById('checkout-button').addEventListener('click', ()=>{
+        // Checkout (calls your global handler in script.js)
+        document.getElementById('checkoutBtn').addEventListener('click', ()=>{
             if (typeof window.handleCheckout === 'function'){ window.handleCheckout(); }
             else { alert('Checkout unavailable: handler not found.'); }
         });
 
-        setCart(getCart()); // refresh badge
-        render();
     })();
 </script>
 </body>

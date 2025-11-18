@@ -346,9 +346,14 @@ async function router() {
     try {
         await loadProducts();
         const path = location.pathname;
-        if (path.endsWith('product.html')) renderProduct();
-        else if (path.endsWith('cart.html')) renderCart();
-        else if (path.endsWith('/') || path.endsWith('index.html')) renderHome();
+        if (path.endsWith('product.html')) {
+            renderProduct();
+        } else if (path.endsWith('cart.html') && !document.getElementById('c-items')) {
+            // Only render via script.js if the inline cart isn't present
+            renderCart();
+        } else if (path.endsWith('/') || path.endsWith('index.html')) {
+            renderHome();
+        }
         updateCartUI();
     } catch (e) {
         console.error('Init error:', e);
