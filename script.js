@@ -89,44 +89,87 @@ async function renderHome() {
 }
 
 /* ===================== PRODUCT PAGE ===================== */
+// FULL REPLACEMENT
+// FULL REPLACEMENT
 async function renderProduct() {
-    const container = $('#product-detail'); if (!container) return;
-    const id = +new URLSearchParams(location.search).get('id');
-    const prods = await loadProducts();
-    const p = prods.find(x => x.id === id);
+    const mount = document.getElementById('product-detail') || document.querySelector('.product-detail');
+    if (!mount) return; // not on product page
+
+    const id = parseInt(new URLSearchParams(location.search).get('id'), 10);
+    const products = await loadProducts();
+    const p = products.find(x => x.id === id);
     if (!p) { location.href = 'index.html'; return; }
 
-    const crumb = $('#crumb-name'); if (crumb) crumb.textContent = p.name;
+    // Breadcrumb + title
+    const crumb = document.getElementById('crumb-name');
+    if (crumb) crumb.textContent = p.name;
     document.title = `${p.name} – Clarity Hoodies`;
 
-    container.innerHTML = `
-    <img src="${p.image}" alt="${p.name}"/>
-    <div class="info">
-      <h1>${p.name}</h1>
-      <p class="price">£${Number(p.price).toFixed(2)}</p>
-      <p class="stock">${p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock'}</p>
+    // Use images[] if present; else fallback to single image
+    const images = (Array.isArray(p.images) && p.images.length) ? p.images : [p.image];
+    const sizes  = Array.isArray(p.sizes)  ? p.sizes  : [];
+    const colors = Array.isArray(p.colors) ? p.colors : [];
 
-      <label for="size">Size</label>
-      <select id="size" ${!p.sizes?.length ? 'hidden' : ''}>
-        ${(p.sizes || []).map(s => `<option>${s}</option>`).join('')}
-      </select>
+    // Build gallery + info INSIDE the product container only
+    mount.innerHTML = `
+    <div class="pd-wrap">
+      <div class="pd-gallery">
+        <div class="pd-thumbs" id="pdThumbs">
+          ${images.map((src, i) => `
+            <button class="pd-thumb ${i === 0 ? 'is-active' : ''}" type="button" data-src="${src}">
+              <img src="${src}" alt="${p.name} ${i + 1}">
+            </button>
+          `).join('')}
+        </div>
+        <figure class="pd-figure">
+          <img id="pdMain" src="${images[0]}" alt="${p.name}">
+        </figure>
+      </div>
 
-      <label for="color">Color</label>
-      <select id="color" ${!p.colors?.length ? 'hidden' : ''}>
-        ${(p.colors || []).map(c => `<option>${c}</option>`).join('')}
-      </select>
+      <aside class="info pd-info">
+        <h1>${p.name}</h1>
+        <p class="price">£${Number(p.price).toFixed(2)}</p>
+        <p class="stock">${p.stock > 0 ? `Only ${p.stock} left!` : 'Out of Stock'}</p>
 
-      <button id="add-to-cart-product" ${p.stock === 0 ? 'disabled' : ''}>
-        ${p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
-      </button>
+        ${sizes.length ? `
+          <label for="size">Size</label>
+          <select id="size">${sizes.map(s => `<option>${s}</option>`).join('')}</select>
+        ` : ''}
+
+        ${colors.length ? `
+          <label for="color">Color</label>
+          <select id="color">${colors.map(c => `<option>${c}</option>`).join('')}</select>
+        ` : ''}
+
+        <button id="add-to-cart-product" ${p.stock === 0 ? 'disabled' : ''}>
+          ${p.stock === 0 ? 'Out of Stock' : 'Add to Cart'}
+        </button>
+      </aside>
     </div>
   `;
 
-    $('#add-to-cart-product').onclick = (e) => {
-        const size = $('#size')?.value || '';
-        const color= $('#color')?.value || '';
-        addToCart(p, size, color, e.currentTarget);
-    };
+    // Click-to-swap thumbnails
+    const main = mount.querySelector('#pdMain');
+    mount.querySelectorAll('.pd-thumb').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const src = btn.getAttribute('data-src');
+            if (src) main.src = src;
+            mount.querySelectorAll('.pd-thumb').forEach(b => b.classList.remove('is-active'));
+            btn.classList.add('is-active');
+        });
+    });
+
+    // Keep your existing addToCart flow
+    const addBtn = document.getElementById('add-to-cart-product');
+    if (addBtn) {
+        addBtn.onclick = (e) => {
+            const size  = document.getElementById('size')?.value || '';
+            const color = document.getElementById('color')?.value || '';
+            try { addToCart(p, size, color, e.currentTarget); }
+            catch { addToCart(p, size, color); }
+            toast(`${p.name} added to cart`);
+        };
+    }
 }
 
 /* ===================== CART LOGIC ===================== */

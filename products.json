@@ -6,6 +6,11 @@
     "priceInPence": 4999,
     "stock": 5,
     "image": "assets/images/hoodie1.png",
+    "images": [
+      "assets/images/hoodie1.png",
+      "assets/images/hoodie2.png",
+      "assets/images/hoodie3.png"
+    ],
     "sizes": ["S", "M", "L", "XL"],
     "colors": ["Black", "Grey"]
   },

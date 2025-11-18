@@ -726,4 +726,180 @@ img{max-width:100%;display:block}
     /* Hover effect for icons */
     color: var(--accent);
 }
-/* ... rest of your style.css ... */
+/* ===== Product gallery (scoped to product page container) ===== */
+.product-detail .pd-layout{
+    display:grid;
+    grid-template-columns:110px 1fr 420px;
+    gap:20px; align-items:start;
+}
+@media (max-width:980px){
+    .product-detail .pd-layout{ grid-template-columns:1fr; }
+}
+.product-detail .pd-gallery{
+    display:grid; grid-template-columns:110px 1fr; gap:16px;
+}
+@media (max-width:980px){
+    .product-detail .pd-gallery{ grid-template-columns:1fr; }
+}
+.product-detail .pd-thumbs{ display:flex; flex-direction:column; gap:10px; }
+.product-detail .pd-thumb{
+    border:1px solid #e6e8ec; background:#fff; border-radius:10px;
+    padding:0; cursor:pointer; outline:0;
+}
+.product-detail .pd-thumb img{
+    width:100px; height:100px; object-fit:cover; display:block; border-radius:9px;
+}
+.product-detail .pd-thumb.is-active{ box-shadow:0 0 0 2px #111; }
+.product-detail .pd-figure{
+    border-radius:12px; overflow:hidden; background:#fff; border:1px solid #eceff1;
+}
+.product-detail #pdMain{
+    width:100%; height:auto; display:block; object-fit:cover; aspect-ratio:4/5;
+}
+/* keep your existing .info styles; just ensure buttons look consistent */
+.product-detail .pd-info .btn-primary,
+.product-detail #add-to-cart-product{
+    background:var(--accent); color:#fff; border:0; padding:.9rem 1.5rem;
+    border-radius:6px; font-weight:600; cursor:pointer;
+}
+.product-detail .pd-info .btn-primary:hover,
+.product-detail #add-to-cart-product:hover{
+    background:var(--accent-dark);
+}
+
+/* === Product page layout (scoped) ====================================== */
+#product-detail {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* Two-column layout: [gallery] | [info] */
+#product-detail .pd-wrap {
+    display: grid !important;              /* force grid in case other CSS conflicts */
+    grid-template-columns: minmax(0, 700px) 380px; /* left: gallery, right: info */
+    gap: 28px;
+    align-items: start;
+}
+
+/* Gallery: [thumbs] | [main image] */
+#product-detail .pd-gallery {
+    display: grid !important;
+    grid-template-columns: 110px minmax(0, 560px);
+    gap: 16px;
+    align-items: start;
+}
+
+/* Fixed main image size (regardless of source pixel size) */
+#product-detail .pd-figure {
+    background: transparent !important;
+    border: 0 !important;
+    padding: 0 !important;
+    margin: 0;
+    box-shadow: none !important;
+    border-radius: 0; /* the image itself can keep radius */
+}
+
+#product-detail #pdMain {
+    width: 560px;
+    height: 680px;
+    object-fit: cover;
+    display: block;
+    border-radius: 12px;
+    box-shadow: 0 2px 14px rgba(0,0,0,.08); /* soft shadow instead of white card */
+}
+
+/* Vertical thumbnail strip on the left */
+#product-detail .pd-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Fixed-size thumbnails */
+#product-detail .pd-thumb {
+    background: #fff;        /* keep thumbs carded, or set transparent */
+    border: 1px solid #e6e8ec;
+}
+#product-detail .pd-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 9px;
+}
+#product-detail .pd-thumb.is-active { box-shadow: 0 0 0 2px #111; }
+
+/* Right-hand info column */
+#product-detail .pd-info h1 { margin: 0 0 10px; }
+#product-detail .pd-info .price { font-weight: 700; margin: 4px 0 6px; }
+#product-detail .pd-info .stock { color: #e91e63; margin-bottom: 12px; }
+#product-detail .pd-info button#add-to-cart-product {
+    background: var(--accent, #111);
+    color: #fff;
+    border: 0;
+    padding: .9rem 1.5rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+#product-detail .pd-info button#add-to-cart-product:hover {
+    background: var(--accent-dark, #000);
+}
+
+/* Mobile: stack everything */
+@media (max-width: 980px) {
+    #product-detail .pd-wrap { grid-template-columns: 1fr; }
+    #product-detail .pd-gallery { grid-template-columns: 1fr; }
+    #product-detail .pd-thumbs { flex-direction: row; }
+    #product-detail .pd-figure,
+    #product-detail #pdMain { width: 100%; height: auto; }
+}
+
+/* --- iPhone fix: keep single thumbnail from growing --- */
+:root {
+    --pd-thumb: 96px;
+    --pd-thumb-m: 72px; /* mobile */
+}
+
+#product-detail .pd-thumbs {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+#product-detail .pd-thumb {
+    -webkit-appearance: none; /* iOS */
+    appearance: none;
+    width: var(--pd-thumb);
+    height: var(--pd-thumb);
+    flex: 0 0 var(--pd-thumb);      /* <-- pin width in flex layout */
+    padding: 0;
+    border: 1px solid #e6e8ec;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+    cursor: pointer;
+}
+
+#product-detail .pd-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    border-radius: 9px;
+}
+
+@media (max-width: 980px) {
+    #product-detail .pd-thumbs {
+        flex-direction: row;          /* your mobile layout */
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: flex-start;
+    }
+    #product-detail .pd-thumb {
+        width: var(--pd-thumb-m);
+        height: var(--pd-thumb-m);
+        flex: 0 0 var(--pd-thumb-m); /* <-- pin width on mobile too */
+    }
+}
