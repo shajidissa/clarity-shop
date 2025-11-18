@@ -3,7 +3,7 @@
 const NETLIFY_FUNCTION_URL =
     'https://clarity-shop.netlify.app/.netlify/functions/create-checkout';
 
-// Your Stripe PUBLISHABLE key (test now, live later)
+// Your Stripe PUBLISHABLE key
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51SU8YDAGUzM7chQmp0Fm1ytVRWShLxBbjivs06CO9vatcMkKx2MHv1imGCM4RDeMFm4Nn4mabIR4X2Oc71xq9r0P00jpZECTr0';
 
 /* ===================== STATE ===================== */
@@ -41,10 +41,15 @@ function toast(message, isError = false) {
 /* ===================== DATA ===================== */
 async function loadProducts() {
     if (allProducts.length) return allProducts;
-    const res = await fetch('products.json');
-    if (!res.ok) throw new Error(`Failed to fetch products.json (${res.status})`);
-    allProducts = await res.json();
-    return allProducts;
+    try {
+        const res = await fetch('products.json');
+        if (!res.ok) throw new Error(`Failed to fetch products.json (${res.status})`);
+        allProducts = await res.json();
+        return allProducts;
+    } catch (e) {
+        console.error(e);
+        return [];
+    }
 }
 
 /* ===================== HOME ===================== */
@@ -87,7 +92,7 @@ async function renderHome() {
             const size = card.querySelector('.size')?.value || '';
             const color= card.querySelector('.color')?.value || '';
             const p = allProducts.find(x => x.id === id);
-            if (p) addToCart(p, size, color, 1, e.currentTarget); // index always adds 1
+            if (p) addToCart(p, size, color, 1, e.currentTarget);
         };
     });
 }
@@ -95,10 +100,10 @@ async function renderHome() {
 /* ===================== PRODUCT PAGE ===================== */
 async function renderProduct() {
     const mount = document.getElementById('product-detail');
-    if (!mount) return; // not on product page
+    if (!mount) return;
 
     const id = parseInt(new URLSearchParams(location.search).get('id'), 10);
-    const products = await (await fetch('products.json')).json();
+    const products = await loadProducts();
     const p = products.find(x => Number(x.id) === id);
     if (!p) { location.href = 'index.html'; return; }
 
@@ -110,6 +115,9 @@ async function renderProduct() {
     const sizes  = Array.isArray(p.sizes)  ? p.sizes  : [];
     const colors = Array.isArray(p.colors) ? p.colors : [];
     const pricePence = p.priceInPence ?? Math.round((p.price || 0) * 100);
+
+    // Define max stock (fall back to a high number if unlimited/undefined)
+    const maxStock = (typeof p.stock === 'number') ? p.stock : 999;
 
     mount.innerHTML = `
     <div class="pd-wrap">
@@ -144,9 +152,9 @@ async function renderProduct() {
         <div class="pd-actions">
           <label for="pdQty">Quantity</label>
           <div class="qty-control">
-            <button type="button" class="qty-btn" data-delta="-1" aria-label="Decrease">−</button>
-            <input id="pdQty" class="qty-input" type="number" min="1" value="1" inputmode="numeric">
-            <button type="button" class="qty-btn" data-delta="1" aria-label="Increase">+</button>
+            <button type="button" class="qty-btn" data-delta="-1" aria-label="Decrease" disabled>−</button>
+            <input id="pdQty" class="qty-input" type="number" min="1" max="${maxStock}" value="1" inputmode="numeric">
+            <button type="button" class="qty-btn" data-delta="1" aria-label="Increase" ${maxStock <= 1 ? 'disabled' : ''}>+</button>
           </div>
 
           <button id="add-to-cart-product" ${p.stock === 0 ? 'disabled' : ''}>
@@ -168,23 +176,46 @@ async function renderProduct() {
         });
     });
 
-    // Quantity stepper
-    const qtyEl = mount.querySelector('#pdQty');
-    mount.querySelectorAll('.qty-btn').forEach(b => {
-        b.addEventListener('click', () => {
-            const delta = +b.dataset.delta;
-            qtyEl.value = Math.max(1, (parseInt(qtyEl.value || '1', 10) + delta));
-        });
-    });
+    // Quantity Logic (Updated for Stock Limit)
+    const qtyEl    = mount.querySelector('#pdQty');
+    const minusBtn = mount.querySelector('.qty-btn[data-delta="-1"]');
+    const plusBtn  = mount.querySelector('.qty-btn[data-delta="1"]');
 
-    // Add to cart (pass exact quantity)
+    function updateQtyUI(val) {
+        // Ensure value is within 1 and Max Stock
+        let v = parseInt(val, 10);
+        if (isNaN(v)) v = 1;
+        v = Math.max(1, Math.min(maxStock, v));
+
+        // Update input
+        qtyEl.value = v;
+
+        // Disable buttons if at limits
+        if(minusBtn) minusBtn.disabled = (v <= 1);
+        if(plusBtn)  plusBtn.disabled  = (v >= maxStock);
+    }
+
+    // Attach Listeners
+    if(minusBtn) minusBtn.onclick = () => updateQtyUI(parseInt(qtyEl.value || '1') - 1);
+    if(plusBtn)  plusBtn.onclick  = () => updateQtyUI(parseInt(qtyEl.value || '1') + 1);
+
+    // Handle manual typing
+    if(qtyEl) {
+        qtyEl.addEventListener('change', (e) => updateQtyUI(e.target.value));
+        qtyEl.addEventListener('input', (e) => {
+            // Optional: Real-time clamp if they type a huge number
+            const val = parseInt(e.target.value, 10);
+            if (val > maxStock) updateQtyUI(maxStock);
+        });
+    }
+
+    // Add to cart
     const addBtn = mount.querySelector('#add-to-cart-product');
     addBtn?.addEventListener('click', (e) => {
         const qty   = Math.max(1, parseInt(qtyEl.value || '1', 10));
         const size  = mount.querySelector('#pdSize')?.value || '';
         const color = mount.querySelector('#pdColor')?.value || '';
 
-        // Use new qty-aware addToCart
         addToCart({
             id: p.id,
             name: p.name,
@@ -199,9 +230,8 @@ async function renderProduct() {
     });
 }
 
-/* ===================== CART LOGIC ===================== */
+/* ===================== CART LOGIC (SHARED) ===================== */
 function addToCart(prod, size = '', color = '', maybeQtyOrBtn, maybeBtn) {
-    // Parse optional qty and button
     let qty = 1, btn = null;
     if (typeof maybeQtyOrBtn === 'number') {
         qty = Math.max(1, parseInt(maybeQtyOrBtn, 10) || 1);
@@ -215,8 +245,6 @@ function addToCart(prod, size = '', color = '', maybeQtyOrBtn, maybeBtn) {
 
     const cartId = `${prod.id}-${size}-${color}`;
     const existing = cart.find(i => i.cartId === cartId);
-
-    // Respect stock if provided
     const stock = (typeof prod.stock === 'number') ? prod.stock : Infinity;
 
     if (existing) {
@@ -238,8 +266,8 @@ function addToCart(prod, size = '', color = '', maybeQtyOrBtn, maybeBtn) {
             cartId,
             id: prod.id,
             name: prod.name,
-            price: prod.price,               // display
-            priceInPence: pricePence,        // accurate calc
+            price: prod.price,
+            priceInPence: pricePence,
             size, color,
             quantity: initialQty,
             image: img0,
@@ -247,7 +275,6 @@ function addToCart(prod, size = '', color = '', maybeQtyOrBtn, maybeBtn) {
         });
     }
 
-    // Button feedback
     if (btn && !btn.classList.contains('is-added')) {
         const original = btn.innerHTML;
         btn.classList.add('is-added');
@@ -260,51 +287,164 @@ function addToCart(prod, size = '', color = '', maybeQtyOrBtn, maybeBtn) {
 function removeFromCart(cartId) {
     cart = cart.filter(i => i.cartId !== cartId);
     saveCart();
-    renderCart();
+    // If on cart page, re-render specifically
+    if (document.getElementById('c-items')) {
+        initCartPage(true); // re-render
+    } else {
+        updateCartUI();
+    }
 }
 
-/* ===================== CART PAGE RENDER ===================== */
-function renderCart() {
-    const itemsWrap = $('#cart-items');
-    const totalEl   = $('#total');
-    const checkoutBtn = $('#checkout-button');
-    if (!itemsWrap) return;
+/* ===================== CART PAGE RENDERER ===================== */
 
-    if (!cart.length) {
-        itemsWrap.innerHTML = `<p>Your cart is empty.</p>`;
-        if (totalEl) totalEl.textContent = '0.00';
-        if (checkoutBtn) checkoutBtn.hidden = true;
+// Helper to determine stock limit for a cart item based on global products
+function maxForItem(it, stockData) {
+    if (!stockData) return Infinity;
+    const p = stockData.find(x => String(x.id) === String(it.id));
+    if (!p) return Infinity;
+
+    // Size specific stock (if your data supported it)
+    if (it.size && p.sizes && p.sizes[it.size] && typeof p.sizes[it.size].stock === 'number') {
+        return p.sizes[it.size].stock;
+    }
+    // Product level stock
+    if (typeof p.stock === 'number') return p.stock;
+
+    return Infinity;
+}
+
+async function initCartPage(isReRender = false) {
+    const listEl  = document.getElementById('c-items');
+    const totalEl = document.getElementById('cartTotal');
+    const coBtn   = document.getElementById('checkoutBtn');
+
+    if (!listEl) return; // Not on cart page
+
+    // Ensure we have fresh stock data
+    if (!isReRender) await loadProducts();
+
+    const key = it => it.cartId || (it.id + '-' + (it.size||'') + '-' + (it.color||''));
+
+    // 1. Handle Empty Cart
+    if (!cart.length){
+        listEl.innerHTML = '<div class="c-empty">Your cart is empty.</div>';
+        if(totalEl) totalEl.textContent = '£0.00';
+        if(coBtn) coBtn.hidden = true;
         return;
     }
+    if(coBtn) {
+        coBtn.hidden = false;
+        coBtn.onclick = handleCheckout; // Bind checkout
+    }
 
-    itemsWrap.innerHTML = cart.map(it => `
-    <div class="cart-line" data-cart-id="${it.cartId}">
-      <div class="cart-line__main">
-        <strong>${it.name}</strong>
-        <div class="muted">${[it.size, it.color].filter(Boolean).join(' / ')}</div>
-      </div>
-      <div class="cart-line__qty">×${it.quantity || 1}</div>
-      <div class="cart-line__price">£${(Number(it.price ?? (it.priceInPence/100)) * (it.quantity || 1)).toFixed(2)}</div>
-      <button class="cart-line__remove" data-cart-id="${it.cartId}">✕</button>
-    </div>
-  `).join('');
-
-    $$('.cart-line__remove').forEach(btn => {
-        btn.onclick = (e) => removeFromCart(e.currentTarget.dataset.cartId);
-    });
-
-    const grand = cart.reduce((s, it) => {
+    // 2. Render Items
+    listEl.innerHTML = cart.map(it => {
         const unit = Number(it.price ?? (it.priceInPence/100));
-        return s + unit * (it.quantity || 1);
-    }, 0);
+        let   qty  = it.quantity || 1;
+        const img  = it.image || (it.images && it.images[0]) || '';
+        const meta = [it.size, it.color].filter(Boolean).join(' / ') || '-';
+        const max  = maxForItem(it, allProducts);
+        const productUrl = `product.html?id=${it.id}`; // Link URL
 
-    if (totalEl) totalEl.textContent = grand.toFixed(2);
-    if (checkoutBtn) { checkoutBtn.hidden = false; checkoutBtn.onclick = handleCheckout; }
+        // auto-clamp logic on render
+        if (Number.isFinite(max) && qty > max) {
+            qty = it.quantity = max;
+            saveCart(); // save clamped value
+        }
+
+        const sub = unit * qty;
+
+        return `
+          <div class="c-line" data-id="${key(it)}" data-unit="${unit}" data-max="${max}">
+            <div class="c-thumb">
+                ${img ? `<a href="${productUrl}"><img src="${img}" alt="${it.name}"></a>` : ''}
+            </div>
+        
+            <div class="c-main">
+              <div class="c-name">
+                  <a href="${productUrl}" style="color:inherit; text-decoration:none;">${it.name}</a>
+              </div>
+              <div class="c-meta">${meta}</div>
+              ${Number.isFinite(max) ? `<div class="c-stock-note">Only ${max} left</div>` : ``}
+              <button class="c-remove" type="button" title="Remove">
+                <svg viewBox="0 0 24 24"><path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6m3 4v8m4-8v8m4-8v8"/></svg>
+              </button>
+            </div>
+        
+            <div class="c-price">£${unit.toFixed(2)}</div>
+        
+            <div class="c-qtycol">
+              <div class="c-qty">
+                <button class="c-qtybtn" data-d="-1" aria-label="Decrease">−</button>
+                <input class="qty-input" type="number" min="1" value="${qty}">
+                <button class="c-qtybtn" data-d="1" aria-label="Increase">+</button>
+              </div>
+            </div>
+        
+            <div class="c-sub"><strong>£${sub.toFixed(2)}</strong></div>
+          </div>`;
+    }).join('');
+
+    // 3. Render Total
+    const grand = cart.reduce((sum,it)=>{
+        const unit = Number(it.price ?? (it.priceInPence/100));
+        return sum + unit * (it.quantity || 1);
+    },0);
+    if(totalEl) totalEl.textContent = '£' + grand.toFixed(2);
+
+    // 4. Attach Listeners (Qty & Remove)
+    listEl.querySelectorAll('.c-line').forEach(row => {
+        const cartId = row.dataset.id;
+        const minus  = row.querySelector('[data-d="-1"]');
+        const plus   = row.querySelector('[data-d="1"]');
+        const input  = row.querySelector('.qty-input');
+        const subEl  = row.querySelector('.c-sub strong');
+        const max    = Number(row.dataset.max);
+        const lim    = Number.isFinite(max) ? max : Infinity;
+
+        // Internal update function
+        function setQty(next) {
+            const desired = parseInt(next, 10);
+            const clamped = Math.max(1, Math.min(lim, isNaN(desired) ? 1 : desired));
+
+            // update global cart state
+            const i = cart.findIndex(x => key(x) === cartId);
+            if (i < 0) return;
+            cart[i].quantity = clamped;
+            saveCart(); // persists to LS and updates header badge
+
+            // update local DOM
+            input.value = clamped;
+            const unit = Number(cart[i].price ?? (cart[i].priceInPence/100));
+            subEl.textContent = '£' + (unit * clamped).toFixed(2);
+
+            // Update Grand Total
+            const newGrand = cart.reduce((s,it) => s + (Number(it.price||0) * (it.quantity||1)), 0);
+            if(totalEl) totalEl.textContent = '£' + newGrand.toFixed(2);
+
+            // Disable buttons at bounds
+            if(minus) minus.disabled = (clamped <= 1);
+            if(plus)  plus.disabled  = (clamped >= lim && Number.isFinite(lim));
+        }
+
+        // Initial button state
+        setQty(input.value);
+
+        if(minus) minus.onclick = (e) => { e.preventDefault(); setQty((parseInt(input.value||'1',10) - 1)); };
+        if(plus)  plus.onclick  = (e) => { e.preventDefault(); setQty((parseInt(input.value||'1',10) + 1)); };
+        if(input) input.onchange = (e) => setQty(e.target.value);
+
+        // Remove button
+        const rmBtn = row.querySelector('.c-remove');
+        if(rmBtn) rmBtn.onclick = () => removeFromCart(cartId);
+    });
 }
+
 
 /* ===================== STRIPE CHECKOUT ===================== */
 async function handleCheckout() {
-    const btn = $('#checkout-button'); if (!btn) return;
+    const btn = $('#checkoutBtn') || $('#checkout-button');
+    if (!btn) return;
 
     if (typeof Stripe === 'undefined') { toast('Payment error. Please refresh.', true); return; }
     if (!STRIPE_PUBLISHABLE_KEY || STRIPE_PUBLISHABLE_KEY.includes('REPLACE_ME')) {
@@ -345,20 +485,24 @@ async function handleCheckout() {
 async function router() {
     try {
         await loadProducts();
+        updateCartUI(); // badge
+
         const path = location.pathname;
+
         if (path.endsWith('product.html')) {
             renderProduct();
-        } else if (path.endsWith('cart.html') && !document.getElementById('c-items')) {
-            // Only render via script.js if the inline cart isn't present
-            renderCart();
+        } else if (path.endsWith('cart.html')) {
+            // Use the specialized cart page logic
+            initCartPage();
         } else if (path.endsWith('/') || path.endsWith('index.html')) {
             renderHome();
         }
-        updateCartUI();
     } catch (e) {
         console.error('Init error:', e);
         const body = $('body');
         if (body) body.innerHTML = `<h1>Error</h1><p>Could not load products.</p>`;
     }
 }
+
+// Start app
 router();
