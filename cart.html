@@ -66,6 +66,15 @@
 
         .c-stock-note{ font-size:.85rem; color:#6b7280; margin-top:4px; }
 
+        .c-actions-right { display:flex; gap:12px; align-items:center; }
+
+        /* Mobile: stack buttons full width */
+        @media (max-width:720px){
+            .c-actions{ flex-direction:column; align-items:stretch; }
+            .c-actions-right{ flex-direction:column; }
+            .c-actions-right .c-btn{ width:100%; }
+        }
+
         /* Mobile layout: name → qty → subtotal; hide unit price to avoid duplicate prices */
         @media (max-width:720px){
             .c-line{
@@ -125,7 +134,13 @@
 
         <div class="c-actions" id="cartActions">
             <div class="c-total">Total <strong id="cartTotal">£0.00</strong></div>
-            <button class="c-btn c-btn-primary" id="checkoutBtn">Checkout</button>
+
+            <div class="c-actions-right">
+                <a class="c-btn c-btn-outline" href="index.html" aria-label="Continue shopping on homepage">
+                    Continue shopping
+                </a>
+                <button class="c-btn c-btn-primary" id="checkoutBtn" type="button">Checkout</button>
+            </div>
         </div>
     </div>
 </main>
