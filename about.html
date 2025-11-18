@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Clarity Hoodies</title>
+    <title>About Us – Clarity</title>
     <link rel="stylesheet" href="style.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 </head>
 <body>
 
@@ -13,8 +13,8 @@
     <div class="bar bar-3col">
         <nav class="header-nav">
             <a href="index.html">Home</a>
-            <a href="#products">Shop</a>
-            <a href="about.html">About</a>
+            <a href="index.html#products">Shop</a>
+            <a href="about.html" class="active">About</a>
             <a href="#site-footer">Contact</a>
         </nav>
 
@@ -25,6 +25,7 @@
                 <span class="brand-tagline">wear your truth</span>
             </div>
         </a>
+
         <a class="cart-link" href="cart.html" aria-label="Cart">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
@@ -36,21 +37,31 @@
     </div>
 </header>
 
-<main>
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Wear Your Truth</h1>
-            <p>Premium quality hoodies for every style.</p>
-            <a href="#products" class="cta-button">Shop The Collection</a>
-        </div>
-    </section>
+<main class="c-wrap">
+    <h2 class="c-head" style="text-align:center; margin-bottom:30px;">Our Story</h2>
 
-    <section class="product-grid-wrapper">
-        <h2>Our Collection</h2>
-        <div class="products" id="products">
-            <!-- Products injected by script.js -->
-        </div>
-    </section>
+    <div class="c-card text-content" style="padding: 40px;">
+        <p>
+            <strong>Clarity</strong> was born from a simple idea: clothing shouldn't just cover you; it should represent you.
+            In a world full of noise, we wanted to create pieces that offer a moment of silence—simple, bold, and authentic.
+        </p>
+
+        <h3>Wear Your Truth</h3>
+        <p>
+            Our tagline isn't just a slogan; it's our design philosophy. Every hoodie we make is crafted to be a canvas for your personal expression.
+            We believe in minimalism that speaks volumes. By stripping away the unnecessary, we leave room for what truly matters: <strong>quality, comfort, and confidence.</strong>
+        </p>
+
+        <h3>Quality & Sustainability</h3>
+        <p>
+            We are based in the UK and committed to ethical manufacturing. Our fabrics are sourced with care, ensuring they feel as good as they look.
+            We focus on durability because we believe the most sustainable garment is one that lasts for years, not weeks.
+        </p>
+        <p>
+            Thank you for being part of our journey.
+        </p>
+        <img src="/assets/images/signature.png" alt="Clarity Team" style="width: 120px; margin-top: 20px; opacity: 0.6;">
+    </div>
 </main>
 
 <footer class="site-footer" id="site-footer">
@@ -81,19 +92,8 @@
             </div>
         </div>
     </div>
-    <div class="footer-bottom-bar">
-        &copy; 2025 Clarity. All Rights Reserved.
-    </div>
+    <div class="footer-bottom-bar">&copy; 2025 Clarity. All Rights Reserved.</div>
 </footer>
-
-<div class="whatsapp">
-    <a href="https://wa.me/1234567890" target="_blank" rel="noopener">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Chat"/>
-    </a>
-</div>
-
-<div id="toast" class="toast" hidden></div>
-<div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
 
 <script src="script.js"></script>
 </body>

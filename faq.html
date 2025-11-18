@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Clarity Hoodies</title>
+    <title>FAQ – Clarity</title>
     <link rel="stylesheet" href="style.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 </head>
 <body>
 
@@ -13,7 +13,7 @@
     <div class="bar bar-3col">
         <nav class="header-nav">
             <a href="index.html">Home</a>
-            <a href="#products">Shop</a>
+            <a href="index.html#products">Shop</a>
             <a href="about.html">About</a>
             <a href="#site-footer">Contact</a>
         </nav>
@@ -25,6 +25,7 @@
                 <span class="brand-tagline">wear your truth</span>
             </div>
         </a>
+
         <a class="cart-link" href="cart.html" aria-label="Cart">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
@@ -36,21 +37,47 @@
     </div>
 </header>
 
-<main>
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Wear Your Truth</h1>
-            <p>Premium quality hoodies for every style.</p>
-            <a href="#products" class="cta-button">Shop The Collection</a>
-        </div>
-    </section>
+<main class="c-wrap">
+    <h2 class="c-head" style="text-align:center; margin-bottom:30px;">Frequently Asked Questions</h2>
 
-    <section class="product-grid-wrapper">
-        <h2>Our Collection</h2>
-        <div class="products" id="products">
-            <!-- Products injected by script.js -->
+    <div class="c-card text-content" style="padding: 40px;">
+
+        <div class="faq-item">
+            <details open>
+                <summary>How long does shipping take?</summary>
+                <p>For UK orders, standard delivery takes 2-4 business days. International orders typically arrive within 7-14 days depending on the destination.</p>
+            </details>
         </div>
-    </section>
+
+        <div class="faq-item">
+            <details>
+                <summary>What is your return policy?</summary>
+                <p>We accept returns within 30 days of delivery. Items must be unworn, unwashed, and in their original packaging. See our <a href="shipping.html" style="color:var(--accent); text-decoration:underline;">Shipping & Returns</a> page for more details.</p>
+            </details>
+        </div>
+
+        <div class="faq-item">
+            <details>
+                <summary>How do your sizes run?</summary>
+                <p>Our hoodies are a "Relaxed Fit" by default. If you prefer a tighter fit, we recommend sizing down. If you want an oversized look, stick to your usual size or go one up.</p>
+            </details>
+        </div>
+
+        <div class="faq-item">
+            <details>
+                <summary>Do you ship internationally?</summary>
+                <p>Yes, we ship globally! Shipping rates are calculated at checkout based on your location.</p>
+            </details>
+        </div>
+
+        <div class="faq-item">
+            <details>
+                <summary>How do I wash my Clarity hoodie?</summary>
+                <p>To keep your hoodie soft and the print fresh, wash inside out on a cold cycle (30°C) and hang to dry. Avoid tumble drying.</p>
+            </details>
+        </div>
+
+    </div>
 </main>
 
 <footer class="site-footer" id="site-footer">
@@ -81,19 +108,8 @@
             </div>
         </div>
     </div>
-    <div class="footer-bottom-bar">
-        &copy; 2025 Clarity. All Rights Reserved.
-    </div>
+    <div class="footer-bottom-bar">&copy; 2025 Clarity. All Rights Reserved.</div>
 </footer>
-
-<div class="whatsapp">
-    <a href="https://wa.me/1234567890" target="_blank" rel="noopener">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Chat"/>
-    </a>
-</div>
-
-<div id="toast" class="toast" hidden></div>
-<div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
 
 <script src="script.js"></script>
 </body>

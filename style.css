@@ -217,6 +217,10 @@ img{max-width:100%;display:block}
 .header-nav a:hover {
     color: var(--accent);
 }
+.header-nav a.active {
+    color: var(--accent);
+    box-shadow: 0 2px 0 var(--accent);
+}
 
 /* --- Hero Section --- */
 .hero {
@@ -595,4 +599,56 @@ img{max-width:100%;display:block}
     .c-sub{ justify-self:end; text-align:right; margin-top:6px; }
     .c-actions{ flex-direction:column; align-items:stretch; }
     .c-btn{ width:100%; }
+}
+
+
+/* ===================== Text / Info Pages (About, FAQ, Shipping) ===================== */
+.text-content {
+    line-height: 1.7;
+    color: #334155;
+    max-width: 800px;
+    margin: 0 auto;
+}
+.text-content p {
+    margin-bottom: 1.5rem;
+    font-size: 1.05rem;
+}
+.text-content h3 {
+    font-size: 1.4rem;
+    margin: 2rem 0 0.75rem;
+    color: var(--text);
+    font-weight: 700;
+}
+.text-content ul {
+    margin-bottom: 1.5rem;
+    padding-left: 20px;
+}
+.text-content li {
+    margin-bottom: 0.5rem;
+}
+/* Simple Accordion for FAQ */
+.faq-item {
+    border-bottom: 1px solid #eee;
+    padding: 1rem 0;
+}
+.faq-item details summary {
+    font-weight: 600;
+    cursor: pointer;
+    padding: 0.5rem 0;
+    list-style: none; /* hides default triangle in some browsers */
+    font-size: 1.1rem;
+    color: var(--text);
+}
+.faq-item details summary::-webkit-details-marker { display: none; }
+.faq-item details summary::after {
+    content: "+";
+    float: right;
+    font-weight: 400;
+    font-size: 1.4rem;
+}
+.faq-item details[open] summary::after { content: "−"; }
+.faq-item details p {
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+    color: var(--muted);
 }

@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Clarity Hoodies</title>
+    <title>Shipping & Returns – Clarity</title>
     <link rel="stylesheet" href="style.css"/>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" xintegrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"/>
 </head>
 <body>
 
@@ -13,7 +13,7 @@
     <div class="bar bar-3col">
         <nav class="header-nav">
             <a href="index.html">Home</a>
-            <a href="#products">Shop</a>
+            <a href="index.html#products">Shop</a>
             <a href="about.html">About</a>
             <a href="#site-footer">Contact</a>
         </nav>
@@ -25,6 +25,7 @@
                 <span class="brand-tagline">wear your truth</span>
             </div>
         </a>
+
         <a class="cart-link" href="cart.html" aria-label="Cart">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
@@ -36,21 +37,34 @@
     </div>
 </header>
 
-<main>
-    <section class="hero">
-        <div class="hero-content">
-            <h1>Wear Your Truth</h1>
-            <p>Premium quality hoodies for every style.</p>
-            <a href="#products" class="cta-button">Shop The Collection</a>
-        </div>
-    </section>
+<main class="c-wrap">
+    <h2 class="c-head" style="text-align:center; margin-bottom:30px;">Shipping & Returns</h2>
 
-    <section class="product-grid-wrapper">
-        <h2>Our Collection</h2>
-        <div class="products" id="products">
-            <!-- Products injected by script.js -->
-        </div>
-    </section>
+    <div class="c-card text-content" style="padding: 40px;">
+        <h3>Shipping Policy</h3>
+        <p>We strive to process all orders within 1-2 business days. You will receive a confirmation email with tracking information once your order has been dispatched.</p>
+
+        <ul>
+            <li><strong>UK Standard:</strong> £3.99 (2-4 Business Days)</li>
+            <li><strong>UK Express:</strong> £6.99 (Next Business Day)</li>
+            <li><strong>International:</strong> Calculated at checkout (7-14 Business Days)</li>
+        </ul>
+        <p><em>Free shipping on all UK orders over £75.</em></p>
+
+        <h3>Return & Refund Policy</h3>
+        <p>We want you to love your Clarity gear. If something isn't right, you have <strong>30 days</strong> from the delivery date to return it to us.</p>
+
+        <p>To be eligible for a return, your item must be:</p>
+        <ul>
+            <li>Unworn and unwashed</li>
+            <li>In the same condition that you received it</li>
+            <li>In the original packaging with tags attached</li>
+        </ul>
+
+        <h3>How to Return</h3>
+        <p>To initiate a return, please email us at <a href="mailto:returns@clarity.com" style="color:var(--accent);">returns@clarity.com</a> with your Order ID. We will provide you with a return authorization slip and the nearest warehouse address.</p>
+        <p>Please note that customers are responsible for return shipping costs unless the item is defective or incorrect.</p>
+    </div>
 </main>
 
 <footer class="site-footer" id="site-footer">
@@ -81,19 +95,8 @@
             </div>
         </div>
     </div>
-    <div class="footer-bottom-bar">
-        &copy; 2025 Clarity. All Rights Reserved.
-    </div>
+    <div class="footer-bottom-bar">&copy; 2025 Clarity. All Rights Reserved.</div>
 </footer>
-
-<div class="whatsapp">
-    <a href="https://wa.me/1234567890" target="_blank" rel="noopener">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="Chat"/>
-    </a>
-</div>
-
-<div id="toast" class="toast" hidden></div>
-<div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
 
 <script src="script.js"></script>
 </body>
