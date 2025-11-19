@@ -5,23 +5,142 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Checkout Cancelled – Clarity</title>
     <link rel="stylesheet" href="style.css" />
+
+    <style>
+        /* ===== Status page layout ===== */
+        .status-header{
+            display:flex;
+            gap:12px;
+            margin-bottom:18px;
+        }
+        .status-icon{
+            width:52px;
+            height:52px;
+            border-radius:999px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:26px;
+            font-weight:700;
+        }
+        .status-icon.error{
+            background:#fef2f2;
+            color:#b91c1c;
+        }
+        .status-header-text h1{
+            margin:0 0 4px;
+            font-size:1.7rem;
+            font-weight:800;
+        }
+        .status-header-text p{
+            margin:0;
+            color:#64748b;
+            font-size:0.98rem;
+        }
+
+        .status-summary{
+            padding:14px 14px 12px;
+            border-radius:12px;
+            border:1px solid #edf1f5;
+            background:#f9fafb;
+            margin-bottom:18px;
+        }
+        .status-summary h2{
+            margin:0 0 10px;
+            font-size:1.05rem;
+            font-weight:700;
+        }
+
+        /* ===== Properly aligned quantity & price columns ===== */
+        .status-items{
+            display:table;
+            width:100%;
+            border-collapse:separate;
+            border-spacing:0 2px;
+        }
+        .s-line{
+            display:table-row;
+        }
+        .s-line-main,
+        .s-line-qty,
+        .s-line-price{
+            display:table-cell;
+            padding:4px 0;
+            vertical-align:baseline;
+        }
+        .s-line-main{
+            width:100%;
+        }
+        .s-line-name{
+            font-weight:600;
+        }
+        .s-line-meta{
+            font-size:0.85rem;
+            color:#64748b;
+            margin-top:2px;
+        }
+        .s-line-qty,
+        .s-line-price{
+            white-space:nowrap;
+            text-align:right;
+            padding-left:16px;
+            font-variant-numeric:tabular-nums;
+        }
+
+        .status-summary-total{
+            margin-top:10px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            font-size:0.98rem;
+        }
+        .status-summary-total span:first-child{
+            color:#64748b;
+        }
+        .status-summary-total span:last-child{
+            font-weight:800;
+            font-variant-numeric:tabular-nums;
+        }
+
+        .status-actions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+        }
+
+        @media (max-width:720px){
+            .status-header{
+                align-items:flex-start;
+            }
+            .status-actions .c-btn{
+                flex:1 1 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- Header (same as the rest of the site) -->
 <header class="site-header simple">
     <div class="bar bar-3col">
-        <div class="bar-left"></div>
+        <nav class="header-nav">
+            <a href="index.html">Home</a>
+            <a href="index.html#products">Shop</a>
+            <a href="about.html">About</a>
+            <a href="#site-footer">Contact</a>
+        </nav>
+
         <a class="brand" href="index.html" aria-label="Clarity home">
-            <img class="brand-mark" src="/assets/images/arabic.png" alt="الوُضوح" />
+            <img class="brand-mark" src="/assets/images/arabic.png" alt="الوُضوح">
             <div class="brand-text">
                 <span class="brand-name">CLARITY</span>
                 <span class="brand-tagline">wear your truth</span>
             </div>
         </a>
+
         <a class="cart-link" href="cart.html" aria-label="Cart">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
-                      fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                      fill="none" stroke="currentColor" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
             <span class="cart-text">Cart</span>
             <span id="cart-count" class="badge">0</span>
@@ -29,17 +148,65 @@
     </div>
 </header>
 
-<section class="cart" style="max-width:720px;margin:40px auto">
-    <h2>Checkout cancelled</h2>
-    <p>Your items are still in your cart.</p>
+<main class="c-wrap" style="padding-top:32px;">
+    <div class="c-card" style="padding:24px 20px 22px; text-align:left;">
+        <!-- Icon + heading block -->
+        <div class="status-header">
+            <div class="status-icon error">✕</div>
+            <div class="status-header-text">
+                <h1>Checkout cancelled</h1>
+                <p>No payment has been taken. Your items are still in your cart.</p>
+            </div>
+        </div>
 
-    <div id="preview" class="card" style="padding:16px;margin-top:16px"></div>
+        <!-- Cart preview -->
+        <div class="status-summary">
+            <h2>Your cart</h2>
+            <div id="preview" class="status-items"></div>
+            <div class="status-summary-total">
+                <span>Current total</span>
+                <span>£<span id="total">0.00</span></span>
+            </div>
+        </div>
 
-    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-        <a href="cart.html" class="back-link">Return to cart</a>
-        <a href="index.html" class="back-link">Continue shopping</a>
+        <!-- Actions -->
+        <div class="status-actions">
+            <a href="cart.html" class="c-btn c-btn-primary">Return to cart</a>
+            <a href="index.html" class="c-btn c-btn-outline">Continue shopping</a>
+        </div>
     </div>
-</section>
+</main>
+
+<footer class="site-footer" id="site-footer">
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>About Clarity</h4>
+            <p>Wear your truth. We provide high-quality, comfortable apparel that speaks for itself. Based in the UK.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="shipping.html">Shipping & Returns</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <ul>
+                <li><a href="mailto:hello@clarity.com">hello@clarity.com</a></li>
+                <li><a href="tel:+441234567890">+44 123 456 7890</a></li>
+            </ul>
+            <div class="footer-socials">
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom-bar">&copy; 2025 Clarity. All Rights Reserved.</div>
+</footer>
 
 <div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
 
@@ -49,31 +216,47 @@
     let cart = [];
     try { cart = stored ? JSON.parse(stored) : []; } catch(e){ cart = []; }
 
-    const wrap = document.getElementById('preview');
+    const wrap     = document.getElementById('preview');
+    const totalEl  = document.getElementById('total');
     const badgeEls = document.querySelectorAll('#cart-count');
 
-    if (!cart.length) {
-        wrap.innerHTML = `<p class="muted">Your cart is empty.</p>`;
-        badgeEls.forEach(b => b.textContent = '0');
-    } else {
-        const lines = cart.map(it => `
-        <div class="cart-line" style="display:flex;justify-content:space-between;gap:12px">
-          <div>
-            <strong>${it.name}</strong>
-            <div class="muted" style="font-size:.9rem">${[it.size, it.color].filter(Boolean).join(' / ') || ''}</div>
-          </div>
-          <div>×${it.quantity || 1}</div>
-          <div>£${(Number(it.price) * (it.quantity || 1)).toFixed(2)}</div>
-        </div>
-      `).join('');
-        const grand = cart.reduce((s, it) => s + Number(it.price) * (it.quantity || 1), 0);
+    if (wrap) {
+        if (!cart.length) {
+            wrap.innerHTML =
+                '<p style="margin:0;color:#64748b;font-size:0.95rem;">Your cart is empty.</p>';
+            totalEl.textContent = '0.00';
+            badgeEls.forEach(b => b.textContent = '0');
+        } else {
+            const lines = cart.map(it => {
+                const meta = [it.size, it.color].filter(Boolean).join(' / ') || '';
+                const qty  = it.quantity || 1;
+                const unit = Number(it.price ?? (it.priceInPence/100));
+                const lineTotal = (unit * qty).toFixed(2);
 
-        wrap.innerHTML = `
-        ${lines}
-        <div class="total" style="margin-top:12px">Current total: £${grand.toFixed(2)}</div>
-      `;
-        const count = cart.reduce((n, it) => n + (it.quantity || 1), 0);
-        badgeEls.forEach(b => b.textContent = String(count));
+                return `
+                    <div class="s-line">
+                        <div class="s-line-main">
+                            <div class="s-line-name">${it.name}</div>
+                            ${meta ? `<div class="s-line-meta">${meta}</div>` : ''}
+                        </div>
+                        <div class="s-line-qty">×${qty}</div>
+                        <div class="s-line-price">£${lineTotal}</div>
+                    </div>
+                `;
+            }).join('');
+
+            wrap.innerHTML = lines;
+
+            const grand = cart.reduce((s, it) => {
+                const unit = Number(it.price ?? (it.priceInPence/100));
+                return s + unit * (it.quantity || 1);
+            }, 0);
+
+            totalEl.textContent = grand.toFixed(2);
+
+            const count = cart.reduce((n, it) => n + (it.quantity || 1), 0);
+            badgeEls.forEach(b => b.textContent = String(count));
+        }
     }
 </script>
 </body>

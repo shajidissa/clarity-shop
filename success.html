@@ -5,23 +5,157 @@
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>Order Confirmed – Clarity</title>
     <link rel="stylesheet" href="style.css" />
+
+    <style>
+        /* ===== Status page layout ===== */
+        .status-header{
+            display:flex;
+            gap:12px;
+            margin-bottom:18px;
+        }
+        .status-icon{
+            width:52px;
+            height:52px;
+            border-radius:999px;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            font-size:26px;
+            font-weight:700;
+        }
+        .status-icon.success{
+            background:#ecfdf5;
+            color:#166534;
+        }
+        .status-header-text h1{
+            margin:0 0 4px;
+            font-size:1.7rem;
+            font-weight:800;
+        }
+        .status-header-text p{
+            margin:0;
+            color:#64748b;
+            font-size:0.98rem;
+        }
+
+        .status-ref{
+            display:flex;
+            flex-wrap:wrap;
+            gap:4px 10px;
+            align-items:baseline;
+            margin-bottom:16px;
+            font-size:0.97rem;
+        }
+        .status-ref-label{ color:#64748b; }
+        .status-ref-value{
+            font-weight:600;
+            letter-spacing:0.03em;
+        }
+
+        .status-summary{
+            padding:14px 14px 12px;
+            border-radius:12px;
+            border:1px solid #edf1f5;
+            background:#f9fafb;
+            margin-bottom:18px;
+        }
+        .status-summary h2{
+            margin:0 0 10px;
+            font-size:1.05rem;
+            font-weight:700;
+        }
+
+        /* ===== Properly aligned quantity & price columns ===== */
+        .status-items{
+            display:table;
+            width:100%;
+            border-collapse:separate;
+            border-spacing:0 2px;
+        }
+        .s-line{
+            display:table-row;
+        }
+        .s-line-main,
+        .s-line-qty,
+        .s-line-price{
+            display:table-cell;
+            padding:4px 0;
+            vertical-align:baseline;
+        }
+        .s-line-main{
+            width:100%;
+        }
+        .s-line-name{
+            font-weight:600;
+        }
+        .s-line-meta{
+            font-size:0.85rem;
+            color:#64748b;
+            margin-top:2px;
+        }
+        .s-line-qty,
+        .s-line-price{
+            white-space:nowrap;
+            text-align:right;
+            padding-left:16px;
+            font-variant-numeric:tabular-nums;
+        }
+
+        .status-summary-total{
+            margin-top:10px;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            font-size:0.98rem;
+        }
+        .status-summary-total span:first-child{
+            color:#64748b;
+        }
+        .status-summary-total span:last-child{
+            font-weight:800;
+            font-variant-numeric:tabular-nums;
+        }
+
+        .status-actions{
+            display:flex;
+            flex-wrap:wrap;
+            gap:10px;
+        }
+
+        @media (max-width:720px){
+            .status-header{
+                align-items:flex-start;
+            }
+            .status-actions .c-btn{
+                flex:1 1 100%;
+            }
+        }
+    </style>
 </head>
 <body>
-<!-- Header (same as the rest of the site) -->
+
 <header class="site-header simple">
     <div class="bar bar-3col">
-        <div class="bar-left"></div>
+        <nav class="header-nav">
+            <a href="index.html">Home</a>
+            <a href="index.html#products">Shop</a>
+            <a href="about.html">About</a>
+            <a href="#site-footer">Contact</a>
+        </nav>
+
         <a class="brand" href="index.html" aria-label="Clarity home">
-            <img class="brand-mark" src="assets/images/arabic.png" alt="الوُضوح" />
+            <img class="brand-mark" src="/assets/images/arabic.png" alt="الوُضوح">
             <div class="brand-text">
                 <span class="brand-name">CLARITY</span>
                 <span class="brand-tagline">wear your truth</span>
             </div>
         </a>
+
         <a class="cart-link" href="cart.html" aria-label="Cart">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
-                      fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                      fill="none" stroke="currentColor" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
             <span class="cart-text">Cart</span>
             <span id="cart-count" class="badge">0</span>
@@ -29,101 +163,174 @@
     </div>
 </header>
 
-<!-- Content card styled to blend with your site -->
-<section class="cart" style="max-width:720px;margin:40px auto">
-    <h2>Thank you — your order is confirmed 🎉</h2>
-    <p>Order reference: <strong id="order-ref">—</strong></p>
+<main class="c-wrap" style="padding-top:32px;">
+    <div class="c-card" style="padding:24px 20px 22px;">
+        <!-- Icon + heading -->
+        <div class="status-header">
+            <div class="status-icon success">✓</div>
+            <div class="status-header-text">
+                <h1>Thank you – your order is confirmed</h1>
+                <p>We’ve emailed your receipt and order details to you.</p>
+            </div>
+        </div>
 
-    <div id="order-summary" class="card" style="padding:16px;margin-top:16px">
-        <h3 style="margin-top:0">Summary</h3>
-        <div id="items"></div>
-        <div class="total" style="margin-top:12px">Total paid: £<span id="total">0.00</span></div>
-    </div>
+        <!-- Order reference -->
+        <div class="status-ref">
+            <span class="status-ref-label">Order reference</span>
+            <span id="order-ref" class="status-ref-value">N/A</span>
+        </div>
 
-    <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap">
-        <a href="index.html" class="back-link">← Continue shopping</a>
-        <a href="cart.html" class="back-link">View cart</a>
+        <!-- Order summary -->
+        <div class="status-summary">
+            <h2>Order summary</h2>
+            <div id="items" class="status-items"></div>
+            <div class="status-summary-total">
+                <span>Total paid</span>
+                <span>£<span id="total">0.00</span></span>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="status-actions">
+            <a href="index.html" class="c-btn c-btn-primary">Continue shopping</a>
+            <a href="cart.html" class="c-btn c-btn-outline">View cart</a>
+        </div>
     </div>
-</section>
+</main>
+
+<footer class="site-footer" id="site-footer">
+    <div class="footer-grid">
+        <div class="footer-col">
+            <h4>About Clarity</h4>
+            <p>Wear your truth. We provide high-quality, comfortable apparel that speaks for itself. Based in the UK.</p>
+        </div>
+        <div class="footer-col">
+            <h4>Quick Links</h4>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="faq.html">FAQ</a></li>
+                <li><a href="shipping.html">Shipping & Returns</a></li>
+            </ul>
+        </div>
+        <div class="footer-col">
+            <h4>Contact Us</h4>
+            <ul>
+                <li><a href="mailto:hello@clarity.com">hello@clarity.com</a></li>
+                <li><a href="tel:+441234567890">+44 123 456 7890</a></li>
+            </ul>
+            <div class="footer-socials">
+                <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="footer-bottom-bar">&copy; 2025 Clarity. All Rights Reserved.</div>
+</footer>
 
 <div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
 
 <script>
-    // Read session id from URL
-    const sessionId = new URLSearchParams(location.search).get('session_id');
-    document.getElementById('order-ref').textContent = sessionId || 'N/A';
+    // --- Get session / order reference from URL ---
+    const params    = new URLSearchParams(window.location.search);
+    const sessionId = params.get('session_id') || params.get('sessionId') || params.get('id') || '';
+    const orderRefEl = document.getElementById('order-ref');
+    if (orderRefEl) orderRefEl.textContent = sessionId || 'N/A';
 
-    // Read cart from localStorage for display only (Stripe already charged server-side price)
+    // --- Local cart rendering (for instant feedback) ---
     const stored = localStorage.getItem('clarityCart');
     let cart = [];
-    try { cart = stored ? JSON.parse(stored) : []; } catch(e){ cart = []; }
+    try { cart = stored ? JSON.parse(stored) : []; } catch (e) { cart = []; }
 
     const itemsWrap = document.getElementById('items');
     const totalEl   = document.getElementById('total');
     const badgeEls  = document.querySelectorAll('#cart-count');
 
-    if (cart.length) {
-        const lines = cart.map(it => `
-        <div class="cart-line" style="display:flex;justify-content:space-between;gap:12px">
-          <div>
-            <strong>${it.name}</strong>
-            <div class="muted" style="font-size:.9rem">${[it.size, it.color].filter(Boolean).join(' / ') || ''}</div>
-          </div>
-          <div>×${it.quantity || 1}</div>
-          <div>£${(Number(it.price) * (it.quantity || 1)).toFixed(2)}</div>
-        </div>
-      `).join('');
+    function renderFromCart() {
+        if (!itemsWrap || !totalEl) return;
+
+        if (!cart.length) {
+            itemsWrap.innerHTML =
+                '<p style="margin:0;color:#64748b;font-size:0.95rem;">Your items will be detailed in your email receipt.</p>';
+            totalEl.textContent = '0.00';
+            return;
+        }
+
+        const lines = cart.map(it => {
+            const meta = [it.size, it.color].filter(Boolean).join(' / ') || '';
+            const qty  = it.quantity || 1;
+            const lineTotal = (Number(it.price ?? (it.priceInPence/100)) * qty).toFixed(2);
+
+            return `
+                <div class="s-line">
+                    <div class="s-line-main">
+                        <div class="s-line-name">${it.name}</div>
+                        ${meta ? `<div class="s-line-meta">${meta}</div>` : ''}
+                    </div>
+                    <div class="s-line-qty">×${qty}</div>
+                    <div class="s-line-price">£${lineTotal}</div>
+                </div>
+            `;
+        }).join('');
+
         itemsWrap.innerHTML = lines;
 
-        const grand = cart.reduce((s, it) => s + Number(it.price) * (it.quantity || 1), 0);
+        const grand = cart.reduce((sum, it) => {
+            const unit = Number(it.price ?? (it.priceInPence/100));
+            return sum + unit * (it.quantity || 1);
+        }, 0);
         totalEl.textContent = grand.toFixed(2);
-    } else {
-        itemsWrap.innerHTML = `<p class="muted">Your items will be in your email receipt.</p>`;
     }
 
-    // Clear cart after rendering, then set badge to 0
+    renderFromCart();
+
+    // Cart is now complete: clear it + reset badge
     localStorage.removeItem('clarityCart');
     badgeEls.forEach(b => b.textContent = '0');
 
+    // --- Optional: overwrite with Stripe session data (authoritative) ---
     (async () => {
         if (!sessionId) return;
+
         try {
             const res = await fetch(
-                'https://clarity-shop.netlify.app/.netlify/functions/retrieve-session?session_id=' + encodeURIComponent(sessionId),
+                '/.netlify/functions/retrieve-session?session_id=' +
+                encodeURIComponent(sessionId),
                 { headers: { 'Content-Type': 'application/json' } }
             );
-            if (!res.ok) throw new Error(`Retrieve failed: ${res.status}`);
+            if (!res.ok) throw new Error('Retrieve failed: ' + res.status);
+
             const s = await res.json();
 
-            // Render authoritative items from Stripe (if available)
-            if (Array.isArray(s.line_items?.data) && s.line_items.data.length) {
+            // Stripe line items override local cart if present
+            if (Array.isArray(s.line_items?.data) && s.line_items.data.length && itemsWrap) {
                 const lines = s.line_items.data.map(li => {
-                    const name = li.description || li.price?.product?.name || 'Item';
-                    const qty  = li.quantity || 1;
-                    const amount = (li.amount_total ?? (li.price?.unit_amount ?? 0) * qty) / 100;
+                    const name   = li.description || li.price?.product?.name || 'Item';
+                    const qty    = li.quantity || 1;
+                    const amount = (li.amount_total ?? ((li.price?.unit_amount ?? 0) * qty)) / 100;
+
                     return `
-                      <div class="cart-line" style="display:flex;justify-content:space-between;gap:12px">
-                        <div><strong>${name}</strong></div>
-                        <div>×${qty}</div>
-                        <div>£${amount.toFixed(2)}</div>
-                      </div>
+                        <div class="s-line">
+                            <div class="s-line-main">
+                                <div class="s-line-name">${name}</div>
+                            </div>
+                            <div class="s-line-qty">×${qty}</div>
+                            <div class="s-line-price">£${amount.toFixed(2)}</div>
+                        </div>
                     `;
                 }).join('');
-                document.getElementById('items').innerHTML = lines;
+
+                itemsWrap.innerHTML = lines;
             }
 
-            // Replace local total with Stripe-confirmed total
-            if (s.amount_total != null) {
-                document.getElementById('total').textContent = (s.amount_total / 100).toFixed(2);
+            if (s.amount_total != null && totalEl) {
+                totalEl.textContent = (s.amount_total / 100).toFixed(2);
             }
-            // Optional: render address or items
-            // const addr = s.shipping_details?.address;
-            // const items = s.line_items?.data ?? [];
         } catch (e) {
             console.warn('Could not load session details:', e);
         }
     })();
-
 </script>
 </body>
 </html>
