@@ -16,6 +16,7 @@
             <a href="index.html#products">Shop</a>
             <a href="about.html" class="active">About</a>
             <a href="#site-footer">Contact</a>
+            <a href="#" id="chatLink">Chat</a>
         </nav>
 
         <a class="brand" href="index.html" aria-label="Clarity home">
@@ -57,9 +58,8 @@
             We are based in the UK and committed to ethical manufacturing. Our fabrics are sourced with care, ensuring they feel as good as they look.
             We focus on durability because we believe the most sustainable garment is one that lasts for years, not weeks.
         </p>
-        <p>
-            Thank you for being part of our journey.
-        </p>
+        <p>Thank you for being part of our journey.</p>
+
         <img src="/assets/images/signature.png" alt="Clarity Team" style="width: 120px; margin-top: 20px; opacity: 0.6;">
     </div>
 </main>
@@ -95,6 +95,40 @@
     <div class="footer-bottom-bar">&copy; 2025 Clarity. All Rights Reserved.</div>
 </footer>
 
+<div id="toast" class="toast" hidden></div>
+<div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
+
+<!-- Stripe for mini-cart checkout anywhere -->
+<script src="https://js.stripe.com/v3"></script>
 <script src="script.js"></script>
+
+<!-- Tawk.to chat (loads only on allowed origins) -->
+<script>
+    (function () {
+        const allowed = [
+            'http://localhost:63342',
+            'http://127.0.0.1:63342',
+            'https://stripe-functions-clarity.netlify.app',
+            'https://shajidissa.github.io'
+        ];
+        if (!allowed.includes(location.origin)) return;
+
+        window.Tawk_API = window.Tawk_API || {};
+        window.Tawk_LoadStart = new Date();
+
+        // Open chat when clicking header "Chat"
+        document.getElementById('chatLink')?.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (window.Tawk_API?.maximize) Tawk_API.maximize();
+        });
+
+        var s1 = document.createElement("script");
+        s1.async = true;
+        s1.src = "https://embed.tawk.to/692073ff8af82d19645aaf59/1jajca7d2"; /* your IDs */
+        s1.charset = "UTF-8";
+        s1.setAttribute("crossorigin", "*");
+        document.body.appendChild(s1);
+    })();
+</script>
 </body>
 </html>

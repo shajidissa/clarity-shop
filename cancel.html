@@ -1,120 +1,44 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <title>Checkout Cancelled – Clarity</title>
-    <link rel="stylesheet" href="style.css" />
+
+    <link rel="stylesheet" href="style.css"/>
+    <!-- Font Awesome for footer socials (matches other pages) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          crossorigin="anonymous" referrerpolicy="no-referrer"/>
 
     <style>
         /* ===== Status page layout ===== */
-        .status-header{
-            display:flex;
-            gap:12px;
-            margin-bottom:18px;
-        }
-        .status-icon{
-            width:52px;
-            height:52px;
-            border-radius:999px;
-            display:flex;
-            align-items:center;
-            justify-content:center;
-            font-size:26px;
-            font-weight:700;
-        }
-        .status-icon.error{
-            background:#fef2f2;
-            color:#b91c1c;
-        }
-        .status-header-text h1{
-            margin:0 0 4px;
-            font-size:1.7rem;
-            font-weight:800;
-        }
-        .status-header-text p{
-            margin:0;
-            color:#64748b;
-            font-size:0.98rem;
-        }
+        .status-header{ display:flex; gap:12px; margin-bottom:18px; }
+        .status-icon{ width:52px; height:52px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:26px; font-weight:700; }
+        .status-icon.error{ background:#fef2f2; color:#b91c1c; }
+        .status-header-text h1{ margin:0 0 4px; font-size:1.7rem; font-weight:800; }
+        .status-header-text p{ margin:0; color:#64748b; font-size:0.98rem; }
 
-        .status-summary{
-            padding:14px 14px 12px;
-            border-radius:12px;
-            border:1px solid #edf1f5;
-            background:#f9fafb;
-            margin-bottom:18px;
-        }
-        .status-summary h2{
-            margin:0 0 10px;
-            font-size:1.05rem;
-            font-weight:700;
-        }
+        .status-summary{ padding:14px 14px 12px; border-radius:12px; border:1px solid #edf1f5; background:#f9fafb; margin-bottom:18px; }
+        .status-summary h2{ margin:0 0 10px; font-size:1.05rem; font-weight:700; }
 
         /* ===== Properly aligned quantity & price columns ===== */
-        .status-items{
-            display:table;
-            width:100%;
-            border-collapse:separate;
-            border-spacing:0 2px;
-        }
-        .s-line{
-            display:table-row;
-        }
-        .s-line-main,
-        .s-line-qty,
-        .s-line-price{
-            display:table-cell;
-            padding:4px 0;
-            vertical-align:baseline;
-        }
-        .s-line-main{
-            width:100%;
-        }
-        .s-line-name{
-            font-weight:600;
-        }
-        .s-line-meta{
-            font-size:0.85rem;
-            color:#64748b;
-            margin-top:2px;
-        }
-        .s-line-qty,
-        .s-line-price{
-            white-space:nowrap;
-            text-align:right;
-            padding-left:16px;
-            font-variant-numeric:tabular-nums;
-        }
+        .status-items{ display:table; width:100%; border-collapse:separate; border-spacing:0 2px; }
+        .s-line{ display:table-row; }
+        .s-line-main, .s-line-qty, .s-line-price{ display:table-cell; padding:4px 0; vertical-align:baseline; }
+        .s-line-main{ width:100%; }
+        .s-line-name{ font-weight:600; }
+        .s-line-meta{ font-size:0.85rem; color:#64748b; margin-top:2px; }
+        .s-line-qty, .s-line-price{ white-space:nowrap; text-align:right; padding-left:16px; font-variant-numeric:tabular-nums; }
 
-        .status-summary-total{
-            margin-top:10px;
-            display:flex;
-            justify-content:space-between;
-            align-items:center;
-            font-size:0.98rem;
-        }
-        .status-summary-total span:first-child{
-            color:#64748b;
-        }
-        .status-summary-total span:last-child{
-            font-weight:800;
-            font-variant-numeric:tabular-nums;
-        }
+        .status-summary-total{ margin-top:10px; display:flex; justify-content:space-between; align-items:center; font-size:0.98rem; }
+        .status-summary-total span:first-child{ color:#64748b; }
+        .status-summary-total span:last-child{ font-weight:800; font-variant-numeric:tabular-nums; }
 
-        .status-actions{
-            display:flex;
-            flex-wrap:wrap;
-            gap:10px;
-        }
+        .status-actions{ display:flex; flex-wrap:wrap; gap:10px; }
 
         @media (max-width:720px){
-            .status-header{
-                align-items:flex-start;
-            }
-            .status-actions .c-btn{
-                flex:1 1 100%;
-            }
+            .status-header{ align-items:flex-start; }
+            .status-actions .c-btn{ flex:1 1 100%; }
         }
     </style>
 </head>
@@ -126,6 +50,7 @@
             <a href="index.html#products">Shop</a>
             <a href="about.html">About</a>
             <a href="#site-footer">Contact</a>
+            <a href="#" id="chatLink">Chat</a>
         </nav>
 
         <a class="brand" href="index.html" aria-label="Clarity home">
@@ -139,8 +64,7 @@
         <a class="cart-link" href="cart.html" aria-label="Cart">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
                 <path d="M7 4h-2l-1 2m0 0 2.2 8.8A2 2 0 0 0 8.1 16H18a2 2 0 0 0 1.9-1.4L22 8H5M10 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm10 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
-                      fill="none" stroke="currentColor" stroke-width="1.6"
-                      stroke-linecap="round" stroke-linejoin="round"></path>
+                      fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"></path>
             </svg>
             <span class="cart-text">Cart</span>
             <span id="cart-count" class="badge">0</span>
@@ -210,6 +134,7 @@
 
 <div id="live" class="visually-hidden" aria-live="polite" role="status"></div>
 
+<!-- Keep your lightweight cart preview so badge/summary render without full app -->
 <script>
     // Show current cart preview & update badge without loading the full app JS
     const stored = localStorage.getItem('clarityCart');
@@ -222,8 +147,7 @@
 
     if (wrap) {
         if (!cart.length) {
-            wrap.innerHTML =
-                '<p style="margin:0;color:#64748b;font-size:0.95rem;">Your cart is empty.</p>';
+            wrap.innerHTML = '<p style="margin:0;color:#64748b;font-size:0.95rem;">Your cart is empty.</p>';
             totalEl.textContent = '0.00';
             badgeEls.forEach(b => b.textContent = '0');
         } else {
@@ -232,32 +156,61 @@
                 const qty  = it.quantity || 1;
                 const unit = Number(it.price ?? (it.priceInPence/100));
                 const lineTotal = (unit * qty).toFixed(2);
-
                 return `
-                    <div class="s-line">
-                        <div class="s-line-main">
-                            <div class="s-line-name">${it.name}</div>
-                            ${meta ? `<div class="s-line-meta">${meta}</div>` : ''}
-                        </div>
-                        <div class="s-line-qty">×${qty}</div>
-                        <div class="s-line-price">£${lineTotal}</div>
-                    </div>
-                `;
+          <div class="s-line">
+            <div class="s-line-main">
+              <div class="s-line-name">${it.name}</div>
+              ${meta ? `<div class="s-line-meta">${meta}</div>` : ''}
+            </div>
+            <div class="s-line-qty">×${qty}</div>
+            <div class="s-line-price">£${lineTotal}</div>
+          </div>`;
             }).join('');
-
             wrap.innerHTML = lines;
 
             const grand = cart.reduce((s, it) => {
                 const unit = Number(it.price ?? (it.priceInPence/100));
                 return s + unit * (it.quantity || 1);
             }, 0);
-
             totalEl.textContent = grand.toFixed(2);
 
             const count = cart.reduce((n, it) => n + (it.quantity || 1), 0);
             badgeEls.forEach(b => b.textContent = String(count));
         }
     }
+</script>
+
+<!-- Stripe + your main JS (harmless here, keeps header/minicart behaviours consistent) -->
+<script src="https://js.stripe.com/v3"></script>
+<script src="script.js"></script>
+
+<!-- Tawk.to chat (loads only on allowed origins) -->
+<script>
+    (function () {
+        const allowed = [
+            'http://localhost:63342',
+            'http://127.0.0.1:63342',
+            'https://stripe-functions-clarity.netlify.app',
+            'https://shajidissa.github.io'
+        ];
+        if (!allowed.includes(location.origin)) return;
+
+        window.Tawk_API = window.Tawk_API || {};
+        window.Tawk_LoadStart = new Date();
+
+        // Open chat when clicking the header "Chat" link
+        document.getElementById('chatLink')?.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (window.Tawk_API?.maximize) Tawk_API.maximize();
+        });
+
+        var s1 = document.createElement("script");
+        s1.async = true;
+        s1.src = "https://embed.tawk.to/692073ff8af82d19645aaf59/1jajca7d2"; /* your IDs */
+        s1.charset = "UTF-8";
+        s1.setAttribute("crossorigin", "*");
+        document.body.appendChild(s1);
+    })();
 </script>
 </body>
 </html>

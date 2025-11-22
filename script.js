@@ -1,6 +1,6 @@
 /* ===================== CONFIG ===================== */
 const NETLIFY_FUNCTION_URL =
-    'https://clarity-shop.netlify.app/.netlify/functions/create-checkout'; // your function
+    'https://stripe-functions-clarity.netlify.app/.netlify/functions/create-checkout'; // your function
 
 const STRIPE_PUBLISHABLE_KEY = 'pk_test_51SU8YDAGUzM7chQmp0Fm1ytVRWShLxBbjivs06CO9vatcMkKx2MHv1imGCM4RDeMFm4Nn4mabIR4X2Oc71xq9r0P00jpZECTr0';
 
